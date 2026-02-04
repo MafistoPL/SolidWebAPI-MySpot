@@ -16,7 +16,14 @@ public class ReservationsService
 
     public int? Create(Reservation reservation)
     {
-        reservation.Date = DateTime.UtcNow.AddDays(1).Date;
+        var now =  DateTime.UtcNow.Date;
+        var pastDays = now.DayOfWeek is DayOfWeek.Sunday ? 7 : (int)now.DayOfWeek;
+        var remainingDays = 7 - pastDays;
+
+        if (!(reservation.Date.Date >= now && reservation.Date.Date <= now.AddDays(remainingDays)))
+        {
+            return null;
+        }
         
         var parkingSpotDoesntExist = !ParkingSpotNames.Contains(reservation.ParkingSpotName);
         var reservationAlreadyExists = Reservations.Any(
