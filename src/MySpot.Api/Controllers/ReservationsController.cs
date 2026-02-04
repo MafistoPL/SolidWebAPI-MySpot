@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using MySpot.Api.Models;
+using MySpot.Api.Commands;
+using MySpot.Api.DTO;
+using MySpot.Api.Entities;
 using MySpot.Api.services;
 
 namespace MySpot.Api.Controllers;
@@ -11,12 +13,12 @@ public class ReservationsController : ControllerBase
     private static readonly ReservationsService ReservationsService = new ReservationsService();
     
     [HttpGet]
-    public ActionResult<IEnumerable<Reservation>> Get() => Ok(ReservationsService.Get());
+    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(ReservationsService.GetAllWeekly());
 
-    [HttpGet("{id:int}")]
-    public ActionResult<Reservation?> Get(int id)
+    [HttpGet("{id:guid}")]
+    public ActionResult<ReservationDto?> Get(Guid id)
     {
-        Reservation? reservation = ReservationsService.Get(id);
+        ReservationDto? reservation = ReservationsService.Get(id);
 
         if (reservation == null)
         {
@@ -27,21 +29,21 @@ public class ReservationsController : ControllerBase
     }
     
     [HttpPost]
-    public ActionResult Post([FromBody] Reservation reservation)
+    public ActionResult Post([FromBody] CreateReservationCommand command)
     {
-        int? id = ReservationsService.Create(reservation);
+        Guid? id = ReservationsService.Create(command with { ReservationId = Guid.NewGuid() });
         if (id == null)
         {
             return BadRequest();
         }
 
-        return CreatedAtAction(nameof(Get), new { id = id }, reservation);
+        return CreatedAtAction(nameof(Get), new { id = id }, null);
     }
 
-    [HttpPut("{id:int}")]
-    public ActionResult Put(int id, Reservation reservation)
+    [HttpPut()]
+    public ActionResult Put(ChangeReservationLicensePlateCommand command)
     {
-        if (ReservationsService.Put(id, reservation) == false)
+        if (ReservationsService.Update(command) == false)
         {
             return NotFound();
         }
@@ -49,10 +51,10 @@ public class ReservationsController : ControllerBase
         return Ok();
     }
 
-    [HttpDelete("{id:int}")]
-    public ActionResult Delete(int id)
+    [HttpDelete()]
+    public ActionResult Delete(DeleteReservationCommand command)
     {
-        if (ReservationsService.Delete(id) == false)
+        if (ReservationsService.Delete(command) == false)
         {
             return NotFound();
         }

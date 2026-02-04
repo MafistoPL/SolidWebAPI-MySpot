@@ -1,8 +1,15 @@
 @url = http://localhost:5000
-@reservationId = 1
+@parkingSpotId = 00000000-0000-0000-0000-000000000001
 
 ###
 GET {{url}}/reservations
+
+> {%
+    client.global.set(
+        "reservationId",
+        response.body[0].id
+    );
+%}
 
 ###
 GET {{url}}/reservations/{{reservationId}}
@@ -13,21 +20,24 @@ Content-Type: application/json
 
 {
   "employeeName": "Wojciech Gargas",
-  "parkingSpotName": "P2",
+  "ParkingSpotId": "{{parkingSpotId}}",
   "licensePlate": "XY12345",
-  "date": "2025-07-13"
+  "date": "2026-02-04"
 }
 
 ###
-PUT {{url}}/reservations/{{reservationId}}
+PUT {{url}}/reservations
 Content-Type: application/json
 
 {
-  "employeeName": "Wojciech Gargas",
-  "parkingSpotName": "P2",
-  "licensePlate": "XY12346",
-  "date": "2025-07-13"
+  "reservationId": "{{reservationId}}",
+  "licensePlate": "XY00000"
 }
 
 ###
-DELETE {{url}}/reservations/{{reservationId}}
+DELETE {{url}}/reservations
+Content-Type: application/json
+
+{
+  "reservationId": "{{reservationId}}"
+}
