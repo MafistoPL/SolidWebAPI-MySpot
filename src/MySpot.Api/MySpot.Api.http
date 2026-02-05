@@ -5,10 +5,20 @@
 GET {{url}}/reservations
 
 > {%
-    client.global.set(
-        "reservationId",
-        response.body[0].id
-    );
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2,'0');
+    const dd = String(d.getDate()).padStart(2,'0');
+    client.global.set("today", `${yyyy}-${mm}-${dd}`);
+
+    if (Array.isArray(response.body) && response.body.length > 0) {
+        client.global.set(
+            "reservationId",
+            response.body[0].id
+        );
+    } else {
+        client.global.clear("reservationId");
+    }
 %}
 
 ###
@@ -22,7 +32,7 @@ Content-Type: application/json
   "employeeName": "Wojciech Gargas",
   "ParkingSpotId": "{{parkingSpotId}}",
   "licensePlate": "XY12345",
-  "date": "2026-02-04"
+  "date": "{{today}}"
 }
 
 ###
