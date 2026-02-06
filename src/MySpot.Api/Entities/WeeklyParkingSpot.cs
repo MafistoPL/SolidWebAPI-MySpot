@@ -21,20 +21,20 @@ public class WeeklyParkingSpot
 
     public void AddReservation(Reservation newReservation, Date now)
     {
-        var isInvalidDate = newReservation.Date.Date < Week.From.Value ||
-            newReservation.Date.Date > Week.To.Value ||
-            newReservation.Date.Date.AddDays(1) < now.Value;
+        var isInvalidDate = newReservation.Date.Value < Week.From.Value ||
+            newReservation.Date.Value > Week.To.Value ||
+            newReservation.Date.Value.AddDays(1) < now.Value;
         
         if (isInvalidDate)
         {
-            throw new InvalidReservationDateException(newReservation.Date);
+            throw new InvalidReservationDateException((DateTime)newReservation.Date);
         }
         
         var reservationAlreadyExists = Reservations.Any(
             reservation => reservation.Date == newReservation.Date);
         if (reservationAlreadyExists)
         {
-            throw new ParkingSpotAlreadyReservedException(Name, newReservation.Date);
+            throw new ParkingSpotAlreadyReservedException(Name, (DateTime)newReservation.Date);
         }
         
         _reservations.Add(newReservation);

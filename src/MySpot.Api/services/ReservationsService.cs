@@ -28,7 +28,7 @@ public class ReservationsService
                 ParkingSpotId = reservation.ParkingSpotId,
                 EmployeeName = reservation.EmployeeName,
                 LicensePlate = reservation.LicensePlate,
-                Date = reservation.Date,
+                Date = reservation.Date.Value.Date
             });
 
     public Guid? Create(CreateReservationCommand createReservationCommand)
@@ -44,7 +44,7 @@ public class ReservationsService
             createReservationCommand.ParkingSpotId,
             createReservationCommand.EmployeeName,
             createReservationCommand.LicensePlate,
-            createReservationCommand.Date);
+            new Date(createReservationCommand.Date));
         
         weeklyParkingSpot.AddReservation(newReservation, new Date(_clock.Current()));
 

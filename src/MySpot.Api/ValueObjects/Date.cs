@@ -13,6 +13,8 @@ public sealed record Date
     
     public static implicit operator DateTimeOffset(Date date) => date.Value;
 
+    public static explicit operator DateTime(Date date) => date.Value.DateTime;
+
     public static implicit operator Date(DateTimeOffset date) => new(date);
     
     public static bool operator <(Date date1, Date date2)
