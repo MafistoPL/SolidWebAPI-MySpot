@@ -18,6 +18,7 @@ public class LicensePlate
             throw new InvalidLicensePlateLengthException(value);
         }
         
+        Value = value;
     }
     
     public static implicit operator string (LicensePlate licensePlate) => licensePlate.Value;
