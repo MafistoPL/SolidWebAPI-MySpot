@@ -22,8 +22,7 @@ public class WeeklyParkingSpot
     public void AddReservation(Reservation newReservation, Date now)
     {
         var isInvalidDate = newReservation.Date.Value < Week.From.Value ||
-            newReservation.Date.Value > Week.To.Value ||
-            newReservation.Date.Value.AddDays(1) < now.Value;
+                            newReservation.Date.Value > Week.To.Value;
         
         if (isInvalidDate)
         {

@@ -6,31 +6,28 @@ using Shouldly;
 
 namespace MySpot.Tests.Unit.Entities;
 
-public class WeeklyParkingSpotTests
+public class ReservatonTests
 {
     private Clock _clock = new Clock();
 
     [Theory]
-    [InlineData("2022-08-17")]
-    [InlineData("2022-08-27")]
-    public void AddReservation_WithInvalidDate_ThrowsInvalidReservationDateException(string dateString)
+    [InlineData("2022-08-09")]
+    public void ReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
         var now = new Date(new DateTime(2022, 08, 10));
         var invalidDate = new Date(DateTime.Parse(dateString));
         var weeklyParkingSpotId = Guid.NewGuid();
-        var weeklyParkingSpot = new WeeklyParkingSpot(weeklyParkingSpotId, new Week(now), "P1");
-        var reservation = new Reservation(
-            Guid.NewGuid(),
-            weeklyParkingSpotId,
-            "EmployeeName",
-            "XYY-1234",
-            invalidDate,
-            now);
         
         // Act
         var exception = Record.Exception(
-            () => weeklyParkingSpot.AddReservation(reservation, invalidDate));
+            () => new Reservation(
+                Guid.NewGuid(),
+                weeklyParkingSpotId,
+                "EmployeeName",
+                "XYY-1234",
+                invalidDate,
+                now));
         
         // Assert
         exception.ShouldNotBeNull();

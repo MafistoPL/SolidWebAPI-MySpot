@@ -44,7 +44,8 @@ public class ReservationsService
             createReservationCommand.ParkingSpotId,
             createReservationCommand.EmployeeName,
             createReservationCommand.LicensePlate,
-            new Date(createReservationCommand.Date));
+            new Date(createReservationCommand.Date),
+            new Date(_clock.Current()));
         
         weeklyParkingSpot.AddReservation(newReservation, new Date(_clock.Current()));
 

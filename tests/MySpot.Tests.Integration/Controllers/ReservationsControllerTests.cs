@@ -38,6 +38,7 @@ public class ReservationsControllerTests
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    // nie można tworzyć na dzisiaj
     [Fact]
     public async Task Post_CreatesReservation_AndGetByIdReturnsOk()
     {
