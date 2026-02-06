@@ -17,7 +17,6 @@ public class LicensePlate
         {
             throw new InvalidLicensePlateLengthException(value);
         }
-
         Value = value;
     }
     

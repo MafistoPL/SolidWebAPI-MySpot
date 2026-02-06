@@ -1,0 +1,13 @@
+repos:
+  - repo: local
+    hooks:
+      - id: dotnet-tests-unit
+        name: dotnet test (unit)
+        entry: dotnet test tests/MySpot.Tests.Unit/MySpot.Tests.Unit.csproj --nologo
+        language: system
+        pass_filenames: false
+      - id: dotnet-tests-integration
+        name: dotnet test (integration)
+        entry: dotnet test tests/MySpot.Tests.Integration/MySpot.Tests.Integration.csproj --nologo
+        language: system
+        pass_filenames: false
