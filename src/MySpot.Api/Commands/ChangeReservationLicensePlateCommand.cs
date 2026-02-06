@@ -1,5 +1,7 @@
-﻿namespace MySpot.Api.Commands;
+﻿using MySpot.Api.ValueObjects;
+
+namespace MySpot.Api.Commands;
 
 public record ChangeReservationLicensePlateCommand(
     Guid ReservationId,
-    string LicensePlate);
+    LicensePlate LicensePlate);
