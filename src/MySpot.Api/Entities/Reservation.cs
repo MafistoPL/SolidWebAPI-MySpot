@@ -1,4 +1,5 @@
 ﻿using MySpot.Api.Exceptions;
+using MySpot.Api.ValueObjects;
 
 namespace MySpot.Api.Entities;
 
@@ -23,7 +24,7 @@ public class Reservation
         Date = date;
     }
 
-    public void ChangeLicensePlate(string licensePlate)
+    public void ChangeLicensePlate(LicensePlate licensePlate)
     {
         if (string.IsNullOrWhiteSpace(licensePlate))
         {
