@@ -4,7 +4,7 @@ using MySpot.Api.services;
 using MySpot.Api.ValueObjects;
 using Shouldly;
 
-namespace MySpot.Unit.Entities;
+namespace MySpot.Tests.Unit.Entities;
 
 public class WeeklyParkingSpotTests
 {
