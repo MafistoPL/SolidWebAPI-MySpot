@@ -23,7 +23,7 @@ builder.Services
                 new Week(clock.Current()), "P5")
         };
     })
-    .AddSingleton<ReservationsService>()
+    .AddSingleton<IReservationsService, ReservationsService>()
     .AddControllers();
 
 var app = builder.Build();

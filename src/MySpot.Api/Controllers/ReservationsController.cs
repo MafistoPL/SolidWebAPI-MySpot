@@ -1,16 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Matching;
 using MySpot.Api.Commands;
 using MySpot.Api.DTO;
-using MySpot.Api.Entities;
 using MySpot.Api.services;
-using MySpot.Api.ValueObjects;
 
 namespace MySpot.Api.Controllers;
 
 [ApiController]
 [Route("reservations")]
-public class ReservationsController(ReservationsService reservationsService) : ControllerBase
+public class ReservationsController(IReservationsService reservationsService) : ControllerBase
 {
     [HttpGet]
     public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(reservationsService.GetAllWeekly());

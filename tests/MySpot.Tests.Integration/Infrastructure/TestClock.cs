@@ -1,6 +1,6 @@
 using MySpot.Api.services;
 
-namespace MySpot.Tests.Unit.Infrastructure;
+namespace MySpot.Tests.Integration.Infrastructure;
 
 public class TestClock : IClock
 {

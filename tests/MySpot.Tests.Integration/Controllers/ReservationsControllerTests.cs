@@ -14,9 +14,12 @@ public class ReservationsControllerTests
     private static readonly Guid ParkingSpotId3 = Guid.Parse("00000000-0000-0000-0000-000000000003");
 
     private readonly HttpClient _client;
+    private readonly TestClock _clock;
 
     public ReservationsControllerTests(ApplicationWebFactory factory)
     {
+        _clock = factory.Clock;
+        _clock.CurrentTime = new DateTime(2022, 08, 10);
         _client = factory.CreateClient();
     }
 
@@ -41,7 +44,7 @@ public class ReservationsControllerTests
     [Fact]
     public async Task Post_CreatesReservation_AndGetByIdReturnsOk()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId1, DateTime.Now);
+        var reservationId = await CreateReservationAsync(ParkingSpotId1, _clock.Current());
         try
         {
             var response = await _client.GetAsync($"reservations/{reservationId}");
@@ -63,7 +66,7 @@ public class ReservationsControllerTests
         var command = new CreateReservationCommand(
             Guid.NewGuid(),
             Guid.Empty,
-            DateTime.Now,
+            _clock.Current(),
             "Employee",
             "ABC123");
 
@@ -75,7 +78,7 @@ public class ReservationsControllerTests
     [Fact]
     public async Task Put_ReturnsOk_ForExistingReservation()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId2, DateTime.Now);
+        var reservationId = await CreateReservationAsync(ParkingSpotId2, _clock.Current());
         try
         {
             var response = await UpdateLicensePlateAsync(reservationId, "XYZ987");
@@ -99,7 +102,7 @@ public class ReservationsControllerTests
     [Fact]
     public async Task Delete_ReturnsNoContent_ForExistingReservation()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId3, DateTime.Now);
+        var reservationId = await CreateReservationAsync(ParkingSpotId3, _clock.Current());
 
         var response = await DeleteReservationAsync(reservationId);
 
