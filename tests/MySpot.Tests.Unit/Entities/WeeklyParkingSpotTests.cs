@@ -56,6 +56,27 @@ public class WeeklyParkingSpotTests
         exception.ShouldNotBeNull();
         exception.ShouldBeOfType<ParkingSpotAlreadyReservedException>();
     }
+
+    [Fact]
+    public void AddReservation_WithValidDate_AddsReservation()
+    {
+        // Arrange
+        var validDate = new Date(new DateTime(2022, 08, 11));
+        var reservation = new Reservation(
+            Guid.NewGuid(),
+            _weeklyParkingSpot.Id,
+            "EmployeeName",
+            "XYY-1234",
+            validDate,
+            _now);
+        
+        // Act
+        _weeklyParkingSpot.AddReservation(reservation, validDate);
+        
+        // Assert
+        _weeklyParkingSpot.Reservations.ShouldHaveSingleItem();
+        _weeklyParkingSpot.Reservations.ShouldContain(reservation);
+    }
     
     #region Arrange
 
