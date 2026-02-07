@@ -16,3 +16,23 @@ Run hooks manually:
 ```powershell
 pre-commit run --all-files
 ```
+
+## Conventional commits: scopes
+Suggested scopes for this repo:
+- api
+- commands
+- controllers
+- docs
+- dto
+- entities
+- exceptions
+- infrastructure
+- parking-spots
+- reservations
+- serialization
+- services
+- tests-integration
+- tests-unit
+- value-objects
+
+When proposing or creating commit messages, pick a scope from the list. If none fits, propose a new scope.
