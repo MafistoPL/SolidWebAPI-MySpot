@@ -1,5 +1,6 @@
 ﻿using MySpot.Api.Commands;
 using MySpot.Api.Entities;
+using MySpot.Api.Repository;
 using MySpot.Api.services;
 using MySpot.Api.ValueObjects;
 using Shouldly;
@@ -13,11 +14,11 @@ public class ReservationsServiceTests
     public void Create_WithCorrectDate_ShouldSucceed()
     {
         // Arrange
-        var parkingSpot = WeeklyParkingSpots.First();
+        var parkingSpot = _weeklyParkingSpotRepository.GetAll().First();
         var command = new CreateReservationCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
-            Clock.Current().Date,
+            _clock.Current().Date,
             "John Doe",
             "ABC-123"
             );
@@ -34,27 +35,13 @@ public class ReservationsServiceTests
     
     private readonly ReservationsService _reservationsService;
 
-    private static readonly TestClock Clock = new()
-    {
-        CurrentTime = new DateTime(2022, 08, 10)
-    };
-    // NOTE: This shared list intentionally leaks state between tests; we will refactor to isolate data.
-    private static readonly List<WeeklyParkingSpot> WeeklyParkingSpots = [
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000001"), 
-            new Week(Clock.Current()), "P1"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000002"),
-            new Week(Clock.Current()), "P2"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000003"),
-            new Week(Clock.Current()), "P3"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000004"),
-            new Week(Clock.Current()), "P4"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000005"), 
-            new Week(Clock.Current()), "P5")
-    ];
-
+    private readonly TestClock _clock = new(new DateTime(2022, 08, 10));
+    
+    private readonly IWeeklyParkingSpotRepository _weeklyParkingSpotRepository;
     public ReservationsServiceTests()
     {
-        _reservationsService = new ReservationsService(WeeklyParkingSpots, Clock);
+        _weeklyParkingSpotRepository = new InMemoryWeeklyParkingSpotRepository(_clock);
+        _reservationsService = new ReservationsService(_weeklyParkingSpotRepository, _clock);
     }
     
     #endregion
