@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Matching;
 using MySpot.Api.Commands;
 using MySpot.Api.DTO;
 using MySpot.Api.Entities;
@@ -9,32 +10,15 @@ namespace MySpot.Api.Controllers;
 
 [ApiController]
 [Route("reservations")]
-public class ReservationsController : ControllerBase
+public class ReservationsController(ReservationsService reservationsService) : ControllerBase
 {
-    private static readonly Clock Clock = new();
-    private static readonly List<WeeklyParkingSpot> WeeklyParkingSpots = [
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000001"), 
-            new Week(Clock.Current()), "P1"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000002"),
-            new Week(Clock.Current()), "P2"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000003"),
-            new Week(Clock.Current()), "P3"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000004"),
-            new Week(Clock.Current()), "P4"),
-        new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000005"), 
-            new Week(Clock.Current()), "P5")
-    ];
-    
-    private static readonly ReservationsService ReservationsService 
-        = new ReservationsService(WeeklyParkingSpots, Clock);
-    
     [HttpGet]
-    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(ReservationsService.GetAllWeekly());
+    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(reservationsService.GetAllWeekly());
 
     [HttpGet("{id:guid}")]
     public ActionResult<ReservationDto?> Get(Guid id)
     {
-        ReservationDto? reservation = ReservationsService.Get(id);
+        ReservationDto? reservation = reservationsService.Get(id);
 
         if (reservation == null)
         {
@@ -47,7 +31,7 @@ public class ReservationsController : ControllerBase
     [HttpPost]
     public ActionResult Post([FromBody] CreateReservationCommand command)
     {
-        Guid? id = ReservationsService.Create(command with { ReservationId = Guid.NewGuid() });
+        Guid? id = reservationsService.Create(command with { ReservationId = Guid.NewGuid() });
         if (id == null)
         {
             return BadRequest();
@@ -59,7 +43,7 @@ public class ReservationsController : ControllerBase
     [HttpPut()]
     public ActionResult Put(ChangeReservationLicensePlateCommand command)
     {
-        if (ReservationsService.Update(command) == false)
+        if (reservationsService.Update(command) == false)
         {
             return NotFound();
         }
@@ -70,7 +54,7 @@ public class ReservationsController : ControllerBase
     [HttpDelete()]
     public ActionResult Delete(DeleteReservationCommand command)
     {
-        if (ReservationsService.Delete(command) == false)
+        if (reservationsService.Delete(command) == false)
         {
             return NotFound();
         }
