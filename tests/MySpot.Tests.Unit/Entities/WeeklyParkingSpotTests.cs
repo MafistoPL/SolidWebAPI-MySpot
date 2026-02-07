@@ -16,24 +16,57 @@ public class WeeklyParkingSpotTests
     public void AddReservation_WithInvalidDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
-        var now = new Date(new DateTime(2022, 08, 10));
         var invalidDate = new Date(DateTime.Parse(dateString));
-        var weeklyParkingSpotId = Guid.NewGuid();
-        var weeklyParkingSpot = new WeeklyParkingSpot(weeklyParkingSpotId, new Week(now), "P1");
         var reservation = new Reservation(
             Guid.NewGuid(),
-            weeklyParkingSpotId,
+            _weeklyParkingSpot.Id,
             "EmployeeName",
             "XYY-1234",
             invalidDate,
-            now);
+            _now);
         
         // Act
         var exception = Record.Exception(
-            () => weeklyParkingSpot.AddReservation(reservation, invalidDate));
+            () => _weeklyParkingSpot.AddReservation(reservation, invalidDate));
         
         // Assert
         exception.ShouldNotBeNull();
         exception.ShouldBeOfType<InvalidReservationDateException>();
     }
+    
+    [Fact]
+    public void AddReservation_WithAlreadyReservedDate_ThrowsParkingSpotAlreadyReservedException()
+    {
+        // Arrange
+        var validDate = new Date(new DateTime(2022, 08, 11));
+        var reservation = new Reservation(
+            Guid.NewGuid(),
+            _weeklyParkingSpot.Id,
+            "EmployeeName",
+            "XYY-1234",
+            validDate,
+            _now);
+        _weeklyParkingSpot.AddReservation(reservation, validDate);
+        
+        // Act
+        var exception = Record.Exception(
+            () => _weeklyParkingSpot.AddReservation(reservation, validDate));
+        
+        // Assert
+        exception.ShouldNotBeNull();
+        exception.ShouldBeOfType<ParkingSpotAlreadyReservedException>();
+    }
+    
+    #region Arrange
+
+    private readonly Date _now;
+    private readonly WeeklyParkingSpot _weeklyParkingSpot;
+
+    public WeeklyParkingSpotTests()
+    {
+        _now = new Date(new DateTime(2022, 08, 10));
+        _weeklyParkingSpot = new WeeklyParkingSpot(Guid.NewGuid(), new Week(_now), "P1");
+    }
+
+    #endregion
 }
