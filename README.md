@@ -36,3 +36,4 @@ Suggested scopes for this repo:
 - value-objects
 
 When proposing or creating commit messages, pick a scope from the list. If none fits, propose a new scope.
+If changes can be cleanly split into multiple independent commits, prefer that.
