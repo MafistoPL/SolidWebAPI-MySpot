@@ -1,6 +1,5 @@
 ﻿using MySpot.Api.Entities;
 using MySpot.Api.Exceptions;
-using MySpot.Api.services;
 using MySpot.Api.ValueObjects;
 using Shouldly;
 
@@ -8,8 +7,6 @@ namespace MySpot.Tests.Unit.Entities;
 
 public class WeeklyParkingSpotTests
 {
-    private Clock _clock = new Clock();
-
     [Theory]
     [InlineData("2022-08-17")]
     [InlineData("2022-08-27")]

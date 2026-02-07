@@ -4,10 +4,10 @@ using MySpot.Api.ValueObjects;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.Services
-    .AddSingleton<Clock>()
+    .AddSingleton<IClock, Clock>()
     .AddSingleton<IEnumerable<WeeklyParkingSpot>>(serviceProvider =>
     {
-        var clock = serviceProvider.GetRequiredService<Clock>();
+        var clock = serviceProvider.GetRequiredService<IClock>();
         
         return new List<WeeklyParkingSpot>()
         {

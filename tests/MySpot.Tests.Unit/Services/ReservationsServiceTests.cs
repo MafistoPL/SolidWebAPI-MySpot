@@ -3,6 +3,7 @@ using MySpot.Api.Entities;
 using MySpot.Api.services;
 using MySpot.Api.ValueObjects;
 using Shouldly;
+using MySpot.Tests.Unit.Infrastructure;
 
 namespace MySpot.Tests.Unit.Services;
 
@@ -16,7 +17,7 @@ public class ReservationsServiceTests
         var command = new CreateReservationCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
-            DateTime.UtcNow,
+            Clock.Current().Date,
             "John Doe",
             "ABC-123"
             );
@@ -32,8 +33,12 @@ public class ReservationsServiceTests
     #region Arrange
     
     private readonly ReservationsService _reservationsService;
-    
-    private static readonly Clock Clock = new();
+
+    private static readonly TestClock Clock = new()
+    {
+        CurrentTime = new DateTime(2022, 08, 10)
+    };
+    // NOTE: This shared list intentionally leaks state between tests; we will refactor to isolate data.
     private static readonly List<WeeklyParkingSpot> WeeklyParkingSpots = [
         new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000001"), 
             new Week(Clock.Current()), "P1"),

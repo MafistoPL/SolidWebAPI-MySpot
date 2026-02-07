@@ -5,7 +5,7 @@ using MySpot.Api.ValueObjects;
 
 namespace MySpot.Api.services;
 
-public class ReservationsService(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots, Clock clock)
+public class ReservationsService(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots, IClock clock)
 {
     public ReservationDto? Get(Guid id) 
         => GetAllWeekly().SingleOrDefault(spot => spot.Id == id);
