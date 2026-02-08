@@ -3,7 +3,8 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
-using MySpot.Api.services;
+using MySpot.Api;
+using MySpot.Application.services;
 
 namespace MySpot.Tests.Integration.Infrastructure;
 

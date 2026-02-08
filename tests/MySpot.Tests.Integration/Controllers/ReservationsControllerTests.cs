@@ -1,7 +1,7 @@
 using System.Net;
 using System.Net.Http.Json;
-using MySpot.Api.Commands;
-using MySpot.Api.DTO;
+using MySpot.Application.Commands;
+using MySpot.Application.DTO;
 using MySpot.Tests.Integration.Infrastructure;
 
 namespace MySpot.Tests.Integration.Controllers;

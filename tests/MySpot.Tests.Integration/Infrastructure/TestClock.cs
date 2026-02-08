@@ -1,4 +1,4 @@
-using MySpot.Api.services;
+using MySpot.Application.services;
 
 namespace MySpot.Tests.Integration.Infrastructure;
 
