@@ -8,6 +8,7 @@ namespace MySpot.Application.services;
 
 public class ReservationsService(
     IWeeklyParkingSpotRepository weeklyParkingSpotRepository,
+    IReservationRepository reservationRepository,
     IClock clock) 
     : IReservationsService
 {
@@ -43,6 +44,7 @@ public class ReservationsService(
             new Date(clock.Current()));
         
         weeklyParkingSpot.AddReservation(newReservation, new Date(clock.Current()));
+        weeklyParkingSpotRepository.Update(weeklyParkingSpot);
 
         return newReservation.Id;
     }
@@ -56,34 +58,32 @@ public class ReservationsService(
         }
         
         var existingReservation = weeklyParkingSpot.Reservations.SingleOrDefault(
-            reservation => reservation.Id == command.ReservationId);
+            reservation => reservation.Id.Value == command.ReservationId);
         if (existingReservation == null)
         {
             return false;
         }
 
         existingReservation.ChangeLicensePlate(command.LicensePlate);
+        weeklyParkingSpotRepository.Update(weeklyParkingSpot);
 
         return true;
     }
     
     public bool Delete(DeleteReservationCommand command)
     {
-        var weeklyParkingSpot = GetWeeklyParkingSpotByReservation(command.ReservationId);
-
-        var existingReservation = weeklyParkingSpot?.Reservations.SingleOrDefault(
-            reservation => reservation.Id == command.ReservationId);
+        var existingReservation = reservationRepository.Get(command.ReservationId);
         if (existingReservation == null)
         {
             return false;
         }
         
-        weeklyParkingSpot?.RemoveReservation(existingReservation.Id);
+        reservationRepository.Remove(existingReservation);
         
         return true;
     }
     
     private WeeklyParkingSpot? GetWeeklyParkingSpotByReservation(Guid reservationId)
         => weeklyParkingSpotRepository.GetAll().SingleOrDefault(spot => spot.Reservations.Any(
-            reservation => reservation.Id == reservationId));
+            reservation => reservation.Id.Value == reservationId));
 }

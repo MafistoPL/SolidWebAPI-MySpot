@@ -2,8 +2,8 @@
 
 public sealed record Week
 {
-    public Date From { get; }
-    public Date To { get; }
+    public Date From { get; private set; }
+    public Date To { get; private set; }
 
     public Week(DateTimeOffset value)
     {
@@ -11,6 +11,12 @@ public sealed record Week
         var remainingDays = 7 - pastDays;
         From = new Date(value.AddDays(-1 * pastDays));
         To = new Date(value.AddDays(remainingDays));
+    }
+
+    public Week(Date from, Date to)
+    {
+        From = from;
+        To = to;
     }
 
     public override string ToString() => $"{From} -> {To}";

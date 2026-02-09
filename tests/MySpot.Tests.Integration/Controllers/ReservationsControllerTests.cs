@@ -6,27 +6,39 @@ using MySpot.Tests.Integration.Infrastructure;
 
 namespace MySpot.Tests.Integration.Controllers;
 
-[Collection("IntegrationTests")]
-public class ReservationsControllerTests
+public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>, IAsyncLifetime
 {
     private static readonly Guid ParkingSpotId1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private static readonly Guid ParkingSpotId2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
     private static readonly Guid ParkingSpotId3 = Guid.Parse("00000000-0000-0000-0000-000000000003");
 
-    private readonly HttpClient _client;
-    private readonly TestClock _clock;
+    private readonly ApplicationWebFactory _factory;
+    private HttpClient _backend = null!;
+    private TestClock _clock = null!;
 
     public ReservationsControllerTests(ApplicationWebFactory factory)
     {
-        _clock = factory.Clock;
+        _factory = factory;
+    }
+
+    public async Task InitializeAsync()
+    {
+        _clock = _factory.Clock;
         _clock.CurrentTime = new DateTime(2022, 08, 10);
-        _client = factory.CreateClient();
+        await _factory.InitializeAsync();
+        _backend = _factory.CreateClient();
+    }
+
+    public async Task DisposeAsync()
+    {
+        _backend.Dispose();
+        await Task.CompletedTask;
     }
 
     [Fact]
     public async Task GetAll_ReturnsOk()
     {
-        var response = await _client.GetAsync("reservations");
+        var response = await _backend.GetAsync("reservations");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var reservations = await response.Content.ReadFromJsonAsync<List<ReservationDto>>();
@@ -36,7 +48,7 @@ public class ReservationsControllerTests
     [Fact]
     public async Task Get_ReturnsNotFound_ForMissingReservation()
     {
-        var response = await _client.GetAsync($"reservations/{Guid.NewGuid()}");
+        var response = await _backend.GetAsync($"reservations/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -47,7 +59,7 @@ public class ReservationsControllerTests
         var reservationId = await CreateReservationAsync(ParkingSpotId1, _clock.Current());
         try
         {
-            var response = await _client.GetAsync($"reservations/{reservationId}");
+            var response = await _backend.GetAsync($"reservations/{reservationId}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var reservation = await response.Content.ReadFromJsonAsync<ReservationDto>();
@@ -70,7 +82,7 @@ public class ReservationsControllerTests
             "Employee",
             "ABC123");
 
-        var response = await _client.PostAsJsonAsync("reservations", command);
+        var response = await _backend.PostAsJsonAsync("reservations", command);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -126,8 +138,12 @@ public class ReservationsControllerTests
             "Employee",
             "ABC123");
 
-        var response = await _client.PostAsJsonAsync("reservations", command);
-        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+        var response = await _backend.PostAsJsonAsync("reservations", command);
+        if (response.StatusCode != HttpStatusCode.Created)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            Assert.Fail($"Expected Created but got {response.StatusCode}. Body: {body}");
+        }
 
         var location = response.Headers.Location?.ToString();
         Assert.False(string.IsNullOrWhiteSpace(location));
@@ -140,10 +156,10 @@ public class ReservationsControllerTests
         var payload = new
         {
             reservationId,
-            licensePlate = new { value = licensePlate }
+            licensePlate
         };
 
-        return _client.PutAsJsonAsync("reservations", payload);
+        return _backend.PutAsJsonAsync("reservations", payload);
     }
 
     private Task<HttpResponseMessage> DeleteReservationAsync(Guid reservationId)
@@ -153,6 +169,6 @@ public class ReservationsControllerTests
             Content = JsonContent.Create(new DeleteReservationCommand(reservationId))
         };
 
-        return _client.SendAsync(request);
+        return _backend.SendAsync(request);
     }
 }

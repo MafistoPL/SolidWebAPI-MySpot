@@ -6,7 +6,7 @@ public sealed record Date
     
     public Date(DateTimeOffset value)
     {
-        Value = value;
+        Value = new DateTimeOffset(value.Date, TimeSpan.Zero);
     }
     
     public Date AddDays(int days) => new(Value.AddDays(days));

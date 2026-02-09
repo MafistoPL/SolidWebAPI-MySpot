@@ -3,12 +3,12 @@ using MySpot.Core.Entities;
 using MySpot.Core.Repositories;
 using MySpot.Core.ValueObjects;
 
-namespace MySpot.Infrastructure.Repository;
+namespace MySpot.Infrastructure.DAL.Repository;
 
 public class InMemoryWeeklyParkingSpotRepository : IWeeklyParkingSpotRepository
 {
     private readonly IClock _clock;
-    private List<WeeklyParkingSpot> _weeklyParkingSpots;
+    private static List<WeeklyParkingSpot> _weeklyParkingSpots;
 
     public InMemoryWeeklyParkingSpotRepository(IClock clock)
     {
@@ -29,7 +29,7 @@ public class InMemoryWeeklyParkingSpotRepository : IWeeklyParkingSpotRepository
         };
     }
     
-    public WeeklyParkingSpot Get(ParkingSpotId id)
+    public WeeklyParkingSpot? Get(ParkingSpotId id)
         => _weeklyParkingSpots.SingleOrDefault(spot => spot.Id == id);
 
     public IEnumerable<WeeklyParkingSpot> GetAll()

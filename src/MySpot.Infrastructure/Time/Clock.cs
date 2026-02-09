@@ -1,4 +1,6 @@
-﻿namespace MySpot.Application.services;
+﻿using MySpot.Application.services;
+
+namespace MySpot.Infrastructure.Time;
 
 public class Clock : IClock
 {

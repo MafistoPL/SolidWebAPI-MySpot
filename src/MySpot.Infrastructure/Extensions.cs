@@ -1,18 +1,22 @@
-﻿using Microsoft.Extensions.DependencyInjection;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using MySpot.Application.services;
 using MySpot.Core.Repositories;
-using MySpot.Infrastructure.Repository;
+using MySpot.Infrastructure.DAL;
+using MySpot.Infrastructure.DAL.Repository;
+using MySpot.Infrastructure.Time;
 
 namespace MySpot.Infrastructure;
 
 public static class Extensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services)
+    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
     {
         services
-            .AddSingleton<IClock, Clock>()
-            .AddSingleton<IWeeklyParkingSpotRepository, InMemoryWeeklyParkingSpotRepository>();
-        
+            .AddPostgres(configuration)
+            .AddScoped<IClock, Clock>();
+
         return services;
     }
 }

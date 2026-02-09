@@ -17,6 +17,19 @@ Run hooks manually:
 pre-commit run --all-files
 ```
 
+## Migrations
+Add a migration:
+```powershell
+cd .\src\MySpot.Infrastructure\
+dotnet ef migrations add Init -o ./DAL/Migrations --startup-project ..\MySpot.Api
+```
+
+Apply migrations:
+```powershell
+cd .\src\MySpot.Infrastructure\
+dotnet ef database update --startup-project ..\MySpot.Api
+```
+
 ## Conventional commits: scopes
 Suggested scopes for this repo:
 - api
