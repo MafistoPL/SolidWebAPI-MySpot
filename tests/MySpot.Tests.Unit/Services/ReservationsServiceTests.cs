@@ -10,7 +10,7 @@ namespace MySpot.Tests.Unit.Services;
 public class ReservationsServiceTests
 {
     [Fact]
-    public async void Create_WithCorrectDate_ShouldSucceed()
+    public async Task Create_WithCorrectDate_ShouldSucceed()
     {
         // Arrange
         var parkingSpot = (await _weeklyParkingSpotRepository.GetAllAsync()).First();

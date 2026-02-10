@@ -45,10 +45,10 @@ public class ApplicationWebFactory : WebApplicationFactory<Program>, IAsyncLifet
     {
         builder.ConfigureAppConfiguration((_, config) =>
         {
-            InitializeAsync().GetAwaiter().GetResult();
             if (_connectionString is null)
             {
-                throw new InvalidOperationException("Test database was not initialized.");
+                throw new InvalidOperationException(
+                    "Test database was not initialized. Call InitializeAsync before creating the client.");
             }
 
             var settings = new Dictionary<string, string?>
@@ -60,10 +60,10 @@ public class ApplicationWebFactory : WebApplicationFactory<Program>, IAsyncLifet
 
         builder.ConfigureTestServices(services =>
         {
-            InitializeAsync().GetAwaiter().GetResult();
             if (_connectionString is null)
             {
-                throw new InvalidOperationException("Test database was not initialized.");
+                throw new InvalidOperationException(
+                    "Test database was not initialized. Call InitializeAsync before creating the client.");
             }
 
             services.RemoveAll(typeof(DbContextOptions<MySpotDbContext>));

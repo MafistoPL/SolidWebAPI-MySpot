@@ -8,16 +8,15 @@ namespace MySpot.Infrastructure.DAL.Repository;
 internal class EfCoreReservationRepository(MySpotDbContext context)
     : IReservationRepository
 {
-    public Task<Reservation?>GetAsync(ReservationId id)
+    public Task<Reservation?> GetAsync(ReservationId id)
     {
         return context.Reservations.SingleOrDefaultAsync(reservation => reservation.Id == id);
     }
 
-    public Task<IEnumerable<Reservation>> GetAllAsync()
+    public async Task<IEnumerable<Reservation>> GetAllAsync()
     {
-        var result = context.Reservations.ToList();
-
-        return Task.FromResult(result.AsEnumerable());
+        var result = await context.Reservations.ToListAsync();
+        return result.AsEnumerable();
     }
 
     public async Task AddAsync(Reservation reservation)
