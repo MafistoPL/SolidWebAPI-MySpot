@@ -4,7 +4,7 @@ using MySpot.Core.ValueObjects;
 
 namespace MySpot.Infrastructure.DAL.Repository;
 
-public class EfCoreReservationRepository(MySpotDbContext context)
+internal class EfCoreReservationRepository(MySpotDbContext context)
     : IReservationRepository
 {
     public Reservation? Get(ReservationId id)

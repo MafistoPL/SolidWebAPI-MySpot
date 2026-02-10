@@ -16,6 +16,7 @@ internal static class Extensions
             x => x.UseNpgsql(connectionString));
         services.AddScoped<IWeeklyParkingSpotRepository, EfCoreWeeklyParkingSpotRepository>();
         services.AddScoped<IReservationRepository, EfCoreReservationRepository>();
+        services.AddHostedService<DatabaseInitializer>();
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
         return services;

@@ -16,13 +16,15 @@
         <PrivateAssets>all</PrivateAssets>
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
-      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="9.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Configuration.Abstractions" Version="10.0.2" />
       <PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.2" />
+      <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="10.0.2" />
       <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="9.0.2" />
   </ItemGroup>
     
     <ItemGroup>
-        <InternalVisibleTo Include="MySpot.Tests.Unit" />
+        <InternalsVisibleTo Include="MySpot.Tests.Unit" />
+        <InternalsVisibleTo Include="MySpot.Tests.Integration" />
     </ItemGroup>
 
 </Project>

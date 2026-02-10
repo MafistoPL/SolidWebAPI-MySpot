@@ -23,5 +23,5 @@
     <ItemGroup>
       <ProjectReference Include="..\..\src\MySpot.Api\MySpot.Api.csproj" />
     </ItemGroup>
-
+    
 </Project>

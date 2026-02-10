@@ -5,7 +5,7 @@ using MySpot.Core.ValueObjects;
 
 namespace MySpot.Infrastructure.DAL.Repository;
 
-public class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
+internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
     : IWeeklyParkingSpotRepository
 {
     public WeeklyParkingSpot? Get(ParkingSpotId id)
