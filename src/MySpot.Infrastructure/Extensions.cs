@@ -11,8 +11,13 @@ namespace MySpot.Infrastructure;
 
 public static class Extensions
 {
-    public static IServiceCollection AddInfrastructure(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddInfrastructure(
+        this IServiceCollection services, 
+        IConfiguration configuration)
     {
+        var sectionAppConfiguration = configuration.GetSection("app");
+        services.Configure<AppOptions>(sectionAppConfiguration);
+        
         services
             .AddPostgres(configuration)
             .AddScoped<IClock, Clock>();
