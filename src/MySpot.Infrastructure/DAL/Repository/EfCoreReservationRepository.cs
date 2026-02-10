@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using MySpot.Core.Entities;
 using MySpot.Core.Repositories;
 using MySpot.Core.ValueObjects;
@@ -7,27 +8,33 @@ namespace MySpot.Infrastructure.DAL.Repository;
 internal class EfCoreReservationRepository(MySpotDbContext context)
     : IReservationRepository
 {
-    public Reservation? Get(ReservationId id)
-        => context.Reservations.SingleOrDefault(reservation => reservation.Id == id);
+    public Task<Reservation?>GetAsync(ReservationId id)
+    {
+        return context.Reservations.SingleOrDefaultAsync(reservation => reservation.Id == id);
+    }
 
-    public IEnumerable<Reservation> GetAll()
-        => context.Reservations.ToList();
+    public Task<IEnumerable<Reservation>> GetAllAsync()
+    {
+        var result = context.Reservations.ToList();
 
-    public void Add(Reservation reservation)
+        return Task.FromResult(result.AsEnumerable());
+    }
+
+    public async Task AddAsync(Reservation reservation)
     {
         context.Reservations.Add(reservation);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
-    public void Update(Reservation reservation)
+    public async Task UpdateAsync(Reservation reservation)
     {
         context.Reservations.Update(reservation);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
-    public void Remove(Reservation reservation)
+    public async Task RemoveAsync(Reservation reservation)
     {
         context.Reservations.Remove(reservation);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

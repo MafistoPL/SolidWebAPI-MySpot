@@ -10,10 +10,10 @@ namespace MySpot.Tests.Unit.Services;
 public class ReservationsServiceTests
 {
     [Fact]
-    public void Create_WithCorrectDate_ShouldSucceed()
+    public async void Create_WithCorrectDate_ShouldSucceed()
     {
         // Arrange
-        var parkingSpot = _weeklyParkingSpotRepository.GetAll().First();
+        var parkingSpot = (await _weeklyParkingSpotRepository.GetAllAsync()).First();
         var command = new CreateReservationCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
@@ -23,7 +23,7 @@ public class ReservationsServiceTests
             );
         
         // Act
-        var reservationId = _reservationsService.Create(command);
+        var reservationId = await _reservationsService.CreateAsync(command);
 
         // Assert
         reservationId.ShouldNotBeNull();

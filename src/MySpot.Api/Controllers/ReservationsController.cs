@@ -10,12 +10,12 @@ namespace MySpot.Api.Controllers;
 public class ReservationsController(IReservationsService reservationsService) : ControllerBase
 {
     [HttpGet]
-    public ActionResult<IEnumerable<ReservationDto>> Get() => Ok(reservationsService.GetAllWeekly());
+    public async Task<ActionResult<IEnumerable<ReservationDto>>> Get() => Ok(await reservationsService.GetAllWeeklyAsync());
 
     [HttpGet("{id:guid}")]
-    public ActionResult<ReservationDto?> Get(Guid id)
+    public async Task<ActionResult<ReservationDto?>> Get(Guid id)
     {
-        ReservationDto? reservation = reservationsService.Get(id);
+        ReservationDto? reservation = await reservationsService.GetAsync(id);
 
         if (reservation == null)
         {
@@ -26,9 +26,9 @@ public class ReservationsController(IReservationsService reservationsService) : 
     }
     
     [HttpPost]
-    public ActionResult Post([FromBody] CreateReservationCommand command)
+    public async Task<ActionResult> Post([FromBody] CreateReservationCommand command)
     {
-        Guid? id = reservationsService.Create(command with { ReservationId = Guid.NewGuid() });
+        Guid? id = await reservationsService.CreateAsync(command with { ReservationId = Guid.NewGuid() });
         if (id == null)
         {
             return BadRequest();
@@ -38,9 +38,9 @@ public class ReservationsController(IReservationsService reservationsService) : 
     }
 
     [HttpPut()]
-    public ActionResult Put(ChangeReservationLicensePlateCommand command)
+    public async Task<ActionResult> Put(ChangeReservationLicensePlateCommand command)
     {
-        if (reservationsService.Update(command) == false)
+        if (!await reservationsService.UpdateAsync(command))
         {
             return NotFound();
         }
@@ -49,9 +49,9 @@ public class ReservationsController(IReservationsService reservationsService) : 
     }
 
     [HttpDelete()]
-    public ActionResult Delete(DeleteReservationCommand command)
+    public async Task<ActionResult> Delete(DeleteReservationCommand command)
     {
-        if (reservationsService.Delete(command) == false)
+        if (!await reservationsService.DeleteAsync(command))
         {
             return NotFound();
         }

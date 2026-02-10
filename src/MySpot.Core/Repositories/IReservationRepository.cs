@@ -5,9 +5,9 @@ namespace MySpot.Core.Repositories;
 
 public interface IReservationRepository
 {
-    public Reservation? Get(ReservationId id);
-    public IEnumerable<Reservation> GetAll();
-    void Add(Reservation reservation);
-    void Update(Reservation reservation);
-    void Remove(Reservation reservation);
+    public Task<Reservation?> GetAsync(ReservationId id);
+    public Task<IEnumerable<Reservation>> GetAllAsync();
+    Task AddAsync(Reservation reservation);
+    Task UpdateAsync(Reservation reservation);
+    Task RemoveAsync(Reservation reservation);
 }

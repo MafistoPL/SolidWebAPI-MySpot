@@ -8,31 +8,35 @@ namespace MySpot.Infrastructure.DAL.Repository;
 internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
     : IWeeklyParkingSpotRepository
 {
-    public WeeklyParkingSpot? Get(ParkingSpotId id)
+    public Task<WeeklyParkingSpot?> GetAsync(ParkingSpotId id)
         => context.WeeklyParkingSpots
             .Include(spot => spot.Reservations)
-            .SingleOrDefault(spot => spot.Id == id);
+            .SingleOrDefaultAsync(spot => spot.Id == id);
 
-    public IEnumerable<WeeklyParkingSpot> GetAll()
-        => context.WeeklyParkingSpots
-            .Include(spot => spot.Reservations)
-            .ToList();
-
-    public void Add(WeeklyParkingSpot weeklyParkingSpot)
+    public async Task<IEnumerable<WeeklyParkingSpot>> GetAllAsync()
     {
-        context.WeeklyParkingSpots.Add(weeklyParkingSpot);
-        context.SaveChanges();
+        var result = await context.WeeklyParkingSpots
+            .Include(spot => spot.Reservations)
+            .ToListAsync();
+        
+        return result.AsEnumerable();
     }
 
-    public void Update(WeeklyParkingSpot weeklyParkingSpot)
+    public async Task AddAsync(WeeklyParkingSpot weeklyParkingSpot)
+    {
+        await context.WeeklyParkingSpots.AddAsync(weeklyParkingSpot);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task UpdateAsync(WeeklyParkingSpot weeklyParkingSpot)
     {
         context.WeeklyParkingSpots.Update(weeklyParkingSpot);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 
-    public void Remove(WeeklyParkingSpot weeklyParkingSpot)
+    public async Task RemoveAsync(WeeklyParkingSpot weeklyParkingSpot)
     {
         context.WeeklyParkingSpots.Remove(weeklyParkingSpot);
-        context.SaveChanges();
+        await context.SaveChangesAsync();
     }
 }

@@ -8,19 +8,30 @@ public class InMemoryReservationRepository : IReservationRepository
 {
     private static List<Reservation> _reservations = new();
 
-    public Reservation? Get(ReservationId id)
-        => _reservations.SingleOrDefault(reservation => reservation.Id == id);
+    public Task<Reservation?> GetAsync(ReservationId id)
+        => Task.FromResult(
+            _reservations.SingleOrDefault(
+                reservation => reservation.Id == id));
+    
+    public Task<IEnumerable<Reservation>> GetAllAsync()
+        => Task.FromResult(_reservations.AsEnumerable());
 
-    public IEnumerable<Reservation> GetAll()
-        => _reservations;
-
-    public void Add(Reservation reservation)
-        => _reservations.Add(reservation);
-
-    public void Update(Reservation reservation)
+    public Task AddAsync(Reservation reservation)
     {
+        _reservations.Add(reservation);
+        
+        return Task.CompletedTask;        
     }
 
-    public void Remove(Reservation reservation)
-        => _reservations.Remove(reservation);
+    public Task UpdateAsync(Reservation reservation)
+    {
+        return Task.CompletedTask;        
+    }
+
+    public Task RemoveAsync(Reservation reservation)
+    {
+        _reservations.Remove(reservation);
+        
+        return Task.CompletedTask;
+    }
 }
