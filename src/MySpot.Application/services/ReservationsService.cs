@@ -1,14 +1,17 @@
 ﻿using MySpot.Application.Commands;
 using MySpot.Application.DTO;
+using MySpot.Core.Abstractions;
+using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
 using MySpot.Core.Repositories;
 using MySpot.Core.ValueObjects;
 
 namespace MySpot.Application.services;
 
-public class ReservationsService(
+public sealed class ReservationsService(
     IWeeklyParkingSpotRepository weeklyParkingSpotRepository,
     IReservationRepository reservationRepository,
+    IParkingReservationService parkingReservationService,
     IClock clock) 
     : IReservationsService
 {
@@ -36,10 +39,14 @@ public class ReservationsService(
 
     public async Task<Guid?> CreateAsync(CreateReservationCommand createReservationCommand)
     {
-        var weeklyParkingSpot = await weeklyParkingSpotRepository.GetAsync(
-            createReservationCommand.ParkingSpotId);
+        var allParkingSpots = (await weeklyParkingSpotRepository
+            .GetByWeekAsync(new Week(clock.Current())))
+            .ToList();
         
-        if (weeklyParkingSpot == null)
+        WeeklyParkingSpot? parkingSpotToReserve = allParkingSpots.SingleOrDefault(
+            weeklyParkingSpot => weeklyParkingSpot.Id.Value == createReservationCommand.ParkingSpotId);
+        
+        if (parkingSpotToReserve == null)
         {
             return null;
         }
@@ -51,8 +58,13 @@ public class ReservationsService(
             new Date(createReservationCommand.Date),
             new Date(clock.Current()));
         
-        weeklyParkingSpot.AddReservation(newReservation, new Date(clock.Current()));
-        await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpot);
+        // weeklyParkingSpot.AddReservation(newReservation, new Date(clock.Current()));
+        parkingReservationService.ReserveSpotForVehicle(
+            allParkingSpots,
+            JobTitle.Employee,
+            parkingSpotToReserve,
+            newReservation);
+        await weeklyParkingSpotRepository.UpdateAsync(parkingSpotToReserve);
 
         return newReservation.Id;
     }

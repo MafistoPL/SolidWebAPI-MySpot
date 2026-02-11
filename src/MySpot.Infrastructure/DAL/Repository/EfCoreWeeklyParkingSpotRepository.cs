@@ -13,6 +13,14 @@ internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
             .Include(spot => spot.Reservations)
             .SingleOrDefaultAsync(spot => spot.Id == id);
 
+    public async Task<IEnumerable<WeeklyParkingSpot>> GetByWeekAsync(Week week)
+    {
+        return await context.WeeklyParkingSpots
+            .Include(spot => spot.Reservations)
+            .Where(x => x.Week == week)
+            .ToListAsync();
+    }
+
     public async Task<IEnumerable<WeeklyParkingSpot>> GetAllAsync()
     {
         var result = await context.WeeklyParkingSpots

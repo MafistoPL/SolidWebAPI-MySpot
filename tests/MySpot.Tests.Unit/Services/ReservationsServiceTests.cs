@@ -1,5 +1,7 @@
 ﻿using MySpot.Application.Commands;
 using MySpot.Application.services;
+using MySpot.Core.DomainServices;
+using MySpot.Core.Policies;
 using MySpot.Core.Repositories;
 using MySpot.Infrastructure.DAL.Repository;
 using Shouldly;
@@ -34,7 +36,7 @@ public class ReservationsServiceTests
     
     private readonly ReservationsService _reservationsService;
 
-    private readonly TestClock _clock = new(new DateTime(2022, 08, 10));
+    private readonly TestClock _clock = new(new DateTime(2022, 08, 10, 12, 0, 0));
     
     private readonly IWeeklyParkingSpotRepository _weeklyParkingSpotRepository;
     private readonly IReservationRepository _reservationRepository;
@@ -42,7 +44,22 @@ public class ReservationsServiceTests
     {
         _weeklyParkingSpotRepository = new InMemoryWeeklyParkingSpotRepository(_clock);
         _reservationRepository = new InMemoryReservationRepository();
-        _reservationsService = new ReservationsService(_weeklyParkingSpotRepository, _reservationRepository, _clock);
+
+        IEnumerable<IReservationPolicy> reservationPolicies =
+        [
+            new RegularEmployeeReservationPolicy(_clock),
+            new ManagerReservationPolicy(),
+            new BossReservationPolicy()
+        ];
+            
+        ParkingReservationService parkingReservationService 
+            = new ParkingReservationService(reservationPolicies, _clock);
+        
+        _reservationsService = new ReservationsService(
+            _weeklyParkingSpotRepository,
+            _reservationRepository,
+            parkingReservationService,
+            _clock);
     }
     
     #endregion

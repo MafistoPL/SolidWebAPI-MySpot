@@ -24,7 +24,7 @@ public class  WeeklyParkingSpot
         Week = week;
     }
 
-    public void AddReservation(Reservation newReservation, Date now)
+    internal void AddReservation(Reservation newReservation, Date now)
     {
         var reservationDay = newReservation.Date.Value.Date;
         var weekFromDay = Week.From.Value.Date;
