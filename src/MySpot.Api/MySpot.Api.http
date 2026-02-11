@@ -39,6 +39,17 @@ Content-Type: application/json
 }
 
 ###
+POST {{url}}/reservations
+Content-Type: application/json
+
+{
+  "employeeName": "Wojciech Gargas",
+  "ParkingSpotId": "{{parkingSpotId}}",
+  "licensePlate": "XY12345",
+  "date": "2022-01-01"
+}
+
+###
 PUT {{url}}/reservations
 Content-Type: application/json
 

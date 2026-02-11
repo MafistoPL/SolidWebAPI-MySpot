@@ -10,7 +10,8 @@ builder.Services
     .AddControllers();
 
 var app = builder.Build();
-app.MapControllers();
+
+app.UseInfrastructure();
 app.Run();
 
 namespace MySpot.Api
