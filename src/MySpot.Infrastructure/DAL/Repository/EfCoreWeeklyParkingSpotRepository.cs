@@ -42,6 +42,12 @@ internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
         await context.SaveChangesAsync();
     }
 
+    public async Task UpdateAsync(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots)
+    {
+        context.WeeklyParkingSpots.UpdateRange(weeklyParkingSpots);
+        await context.SaveChangesAsync();
+    }
+
     public async Task RemoveAsync(WeeklyParkingSpot weeklyParkingSpot)
     {
         context.WeeklyParkingSpots.Remove(weeklyParkingSpot);

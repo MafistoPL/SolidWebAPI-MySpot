@@ -22,7 +22,7 @@ public static class Extensions
         
         services
             .AddPostgres(configuration)
-            .AddScoped<IClock, Clock>();
+            .AddSingleton<IClock, Clock>();
 
         return services;
     }

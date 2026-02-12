@@ -54,9 +54,9 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Post_CreatesReservation_AndGetByIdReturnsOk()
+    public async Task PostVehicle_CreatesReservation_AndGetByIdReturnsOk()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId1, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, _clock.Current());
         try
         {
             var response = await _backend.GetAsync($"reservations/{reservationId}");
@@ -73,16 +73,61 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Post_ReturnsBadRequest_ForUnknownParkingSpot()
+    public async Task PostVehicle_ReturnsBadRequest_ForUnknownParkingSpot()
     {
-        var command = new CreateReservationCommand(
+        var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
             Guid.Empty,
             _clock.Current(),
             "Employee",
             "ABC123");
 
-        var response = await _backend.PostAsJsonAsync("reservations", command);
+        var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task PostCleaning_ReturnsOk_AndReplacesReservationsForDate()
+    {
+        var cleaningDate = new DateTime(2022, 08, 13);
+        await DeleteReservationsForDateAsync(cleaningDate);
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, cleaningDate);
+
+        try
+        {
+            var response = await _backend.PostAsJsonAsync(
+                "reservations/cleaning",
+                new ReserveParkingSpotForCleaningCommand(cleaningDate));
+
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var reservations = await GetAllReservationsAsync();
+            var reservationsForDate = reservations
+                .Where(reservation => reservation.Date.Date == cleaningDate.Date)
+                .ToList();
+
+            Assert.Equal(3, reservationsForDate.Count);
+            Assert.All(reservationsForDate, reservation =>
+            {
+                Assert.True(string.IsNullOrWhiteSpace(reservation.EmployeeName));
+                Assert.True(string.IsNullOrWhiteSpace(reservation.LicensePlate));
+            });
+        }
+        finally
+        {
+            await DeleteReservationsForDateAsync(cleaningDate);
+            await DeleteReservationIfExistsAsync(reservationId);
+        }
+    }
+
+    [Fact]
+    public async Task PostCleaning_ReturnsBadRequest_ForPastDate()
+    {
+        var command = new ReserveParkingSpotForCleaningCommand(
+            _clock.Current().AddDays(-1));
+
+        var response = await _backend.PostAsJsonAsync("reservations/cleaning", command);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -90,7 +135,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task Put_ReturnsOk_ForExistingReservation()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId2, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId2, _clock.Current());
         try
         {
             var response = await UpdateLicensePlateAsync(reservationId, "XYZ987");
@@ -114,7 +159,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task Delete_ReturnsNoContent_ForExistingReservation()
     {
-        var reservationId = await CreateReservationAsync(ParkingSpotId3, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId3, _clock.Current());
 
         var response = await DeleteReservationAsync(reservationId);
 
@@ -129,16 +174,16 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
-    private async Task<Guid> CreateReservationAsync(Guid parkingSpotId, DateTime date)
+    private async Task<Guid> CreateVehicleReservationAsync(Guid parkingSpotId, DateTime date)
     {
-        var command = new CreateReservationCommand(
+        var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpotId,
             Guid.Empty,
             date,
             "Employee",
             "ABC123");
 
-        var response = await _backend.PostAsJsonAsync("reservations", command);
+        var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
         if (response.StatusCode != HttpStatusCode.Created)
         {
             var body = await response.Content.ReadAsStringAsync();
@@ -149,6 +194,19 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         Assert.False(string.IsNullOrWhiteSpace(location));
         var idSegment = location!.Split('/').Last();
         return Guid.Parse(idSegment);
+    }
+
+    private async Task<List<ReservationDto>> GetAllReservationsAsync()
+    {
+        var response = await _backend.GetAsync("reservations");
+        if (!response.IsSuccessStatusCode)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            Assert.Fail($"Expected OK but got {response.StatusCode}. Body: {body}");
+        }
+
+        var reservations = await response.Content.ReadFromJsonAsync<List<ReservationDto>>();
+        return reservations ?? new List<ReservationDto>();
     }
 
     private Task<HttpResponseMessage> UpdateLicensePlateAsync(Guid reservationId, string licensePlate)
@@ -170,5 +228,30 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         };
 
         return _backend.SendAsync(request);
+    }
+
+    private async Task DeleteReservationIfExistsAsync(Guid reservationId)
+    {
+        var response = await DeleteReservationAsync(reservationId);
+        if (response.StatusCode != HttpStatusCode.NoContent &&
+            response.StatusCode != HttpStatusCode.NotFound)
+        {
+            var body = await response.Content.ReadAsStringAsync();
+            Assert.Fail($"Expected cleanup to return NoContent or NotFound but got {response.StatusCode}. Body: {body}");
+        }
+    }
+
+    private async Task DeleteReservationsForDateAsync(DateTime date)
+    {
+        var reservations = await GetAllReservationsAsync();
+        var reservationsForDate = reservations
+            .Where(reservation => reservation.Date.Date == date.Date)
+            .Select(reservation => reservation.Id)
+            .ToList();
+
+        foreach (var reservationId in reservationsForDate)
+        {
+            await DeleteReservationIfExistsAsync(reservationId);
+        }
     }
 }

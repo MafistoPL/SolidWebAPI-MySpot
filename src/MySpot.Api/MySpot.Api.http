@@ -28,7 +28,7 @@ GET {{url}}/reservations
 GET {{url}}/reservations/{{reservationId}}
 
 ###
-POST {{url}}/reservations
+POST {{url}}/reservations/vehicle
 Content-Type: application/json
 
 {

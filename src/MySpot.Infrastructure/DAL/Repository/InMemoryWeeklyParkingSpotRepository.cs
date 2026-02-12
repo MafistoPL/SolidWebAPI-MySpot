@@ -53,6 +53,12 @@ public class InMemoryWeeklyParkingSpotRepository : IWeeklyParkingSpotRepository
         return Task.CompletedTask;
     }
 
+    public async Task UpdateAsync(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots)
+    {
+        foreach (var weeklyParkingSpot in weeklyParkingSpots)
+            await UpdateAsync(weeklyParkingSpot);
+    }
+
     public Task RemoveAsync(WeeklyParkingSpot weeklyParkingSpot)
     {
         _weeklyParkingSpots.Remove(weeklyParkingSpot);

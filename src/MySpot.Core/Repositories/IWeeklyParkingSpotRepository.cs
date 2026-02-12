@@ -10,5 +10,6 @@ public interface IWeeklyParkingSpotRepository
     public Task<IEnumerable<WeeklyParkingSpot>> GetAllAsync();
     Task AddAsync(WeeklyParkingSpot weeklyParkingSpot);
     Task UpdateAsync(WeeklyParkingSpot weeklyParkingSpot);
+    Task UpdateAsync(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots);
     Task RemoveAsync(WeeklyParkingSpot weeklyParkingSpot);
 }

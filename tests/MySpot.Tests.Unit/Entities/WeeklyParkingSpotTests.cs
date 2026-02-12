@@ -14,17 +14,17 @@ public class WeeklyParkingSpotTests
     {
         // Arrange
         var invalidDate = new Date(DateTime.Parse(dateString));
-        var reservation = new Reservation(
+        var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
-            "EmployeeName",
-            "XYY-1234",
             invalidDate,
-            _now);
+            _now,
+            "EmployeeName",
+            "XYY-1234");
         
         // Act
         var exception = Record.Exception(
-            () => _weeklyParkingSpot.AddReservation(reservation, invalidDate));
+            () => _weeklyParkingSpot.AddReservation(reservation, _now));
         
         // Assert
         exception.ShouldNotBeNull();
@@ -36,13 +36,13 @@ public class WeeklyParkingSpotTests
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 11));
-        var reservation = new Reservation(
+        var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
-            "EmployeeName",
-            "XYY-1234",
             validDate,
-            _now);
+            _now,
+            "EmployeeName",
+            "XYY-1234");
         _weeklyParkingSpot.AddReservation(reservation, validDate);
         
         // Act
@@ -59,13 +59,13 @@ public class WeeklyParkingSpotTests
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 11));
-        var reservation = new Reservation(
+        var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
-            "EmployeeName",
-            "XYY-1234",
             validDate,
-            _now);
+            _now,
+            "EmployeeName",
+            "XYY-1234");
         
         // Act
         _weeklyParkingSpot.AddReservation(reservation, validDate);

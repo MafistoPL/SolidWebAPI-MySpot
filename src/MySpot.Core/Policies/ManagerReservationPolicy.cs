@@ -12,6 +12,7 @@ internal sealed class ManagerReservationPolicy : IReservationPolicy
     {
         var totalEmployeeReservations = weeklyParkingSpots
             .SelectMany(x => x.Reservations)
+            .OfType<VehicleReservation>()
             .Count(x => x.EmployeeName == employeeName);
 
         return totalEmployeeReservations <= 4;

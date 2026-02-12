@@ -9,7 +9,7 @@ public class ReservatonTests
 {
     [Theory]
     [InlineData("2022-08-09")]
-    public void ReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
+    public void VehicleReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
         var nowValue = new DateTime(2022, 08, 10);
@@ -19,14 +19,37 @@ public class ReservatonTests
         
         // Act
         var exception = Record.Exception(
-            () => new Reservation(
+            () => new VehicleReservation(
                 Guid.NewGuid(),
                 weeklyParkingSpotId,
+                invalidDate,
+                now,
                 "EmployeeName",
-                "XYY-1234",
+                "XYY-1234"));
+        
+        // Assert
+        exception.ShouldNotBeNull();
+        exception.ShouldBeOfType<InvalidReservationDateException>();
+    }
+
+    [Theory]
+    [InlineData("2022-08-09")]
+    public void CleaningReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
+    {
+        // Arrange
+        var nowValue = new DateTime(2022, 08, 10);
+        var now = new Date(nowValue);
+        var invalidDate = new Date(DateTime.Parse(dateString));
+        var weeklyParkingSpotId = Guid.NewGuid();
+
+        // Act
+        var exception = Record.Exception(
+            () => new CleaningReservation(
+                Guid.NewGuid(),
+                weeklyParkingSpotId,
                 invalidDate,
                 now));
-        
+
         // Assert
         exception.ShouldNotBeNull();
         exception.ShouldBeOfType<InvalidReservationDateException>();
