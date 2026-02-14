@@ -13,15 +13,10 @@ public class ReservationsController(
     ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
     ICommandHandler<DeleteReservationCommand> deleteReservationCommandHandler,
     ICommandHandler<ReserveParkingSpotForCleaningCommand> reserveParkingSpotForCleaningCommandHandler,
-    IQueryHandler<GetReservation, ReservationDto?> getReservationQueryHandler,
-    IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
+    IQueryHandler<GetReservation, ReservationDto?> getReservationQueryHandler
     ) : ControllerBase
 {
     public const string Path = "reservations";
-    
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ReservationDto>>> Get([FromQuery] GetWeeklyParkingSpots query) 
-        => Ok(await getWeeklyParkingSpotsQueryHandler.HandleAsync(query));
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ReservationDto?>> GetById(Guid id)

@@ -38,16 +38,6 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task GetAll_ReturnsOk()
-    {
-        var response = await _backend.GetAsync($"{ReservationsController.Path}");
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var reservations = await response.Content.ReadFromJsonAsync<List<WeeklyParkingSpotDto>>();
-        Assert.NotNull(reservations);
-    }
-
-    [Fact]
     public async Task Get_ReturnsNotFound_ForMissingReservation()
     {
         var response = await _backend.GetAsync($"{ReservationsController.Path}/{Guid.NewGuid()}");
@@ -293,7 +283,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
 
     private async Task<List<ReservationDto>> GetAllReservationsAsync()
     {
-        var response = await _backend.GetAsync($"{ReservationsController.Path}");
+        var response = await _backend.GetAsync($"{ParkingSpotsController.Path}");
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync();
