@@ -1,0 +1,127 @@
+# Scenario: add two vehicle reservations (tomorrow, day after), then schedule cleaning for tomorrow.
+# Expected:
+# - Tomorrow becomes a cleaning reservation (no employee/license).
+# - Day after remains a vehicle reservation.
+# Cleanup: delete the day-after reservation (cleaning cleanup is in a separate file).
+
+@url = http://localhost:5000
+@parkingSpotId = 00000000-0000-0000-0000-000000000001
+
+### Step 1: Compute dates
+GET {{url}}/reservations
+
+> {%
+    const now = new Date();
+    const tomorrow = new Date(now);
+    const dayAfter = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+    dayAfter.setDate(now.getDate() + 2);
+
+    const toIsoDate = (d) => {
+        const yyyy = d.getFullYear();
+        const mm = String(d.getMonth() + 1).padStart(2, '0');
+        const dd = String(d.getDate()).padStart(2, '0');
+        return `${yyyy}-${mm}-${dd}`;
+    };
+
+    client.global.set("tomorrow", toIsoDate(tomorrow));
+    client.global.set("dayAfterTomorrow", toIsoDate(dayAfter));
+
+    client.global.set("tomorrowReservationId", "00000000-0000-0000-0000-000000000000");
+    client.global.set("dayAfterReservationId", "00000000-0000-0000-0000-000000000000");
+    client.global.set("cleaningReservationId", "00000000-0000-0000-0000-000000000000");
+%}
+
+### Step 2: Create vehicle reservation for tomorrow
+POST {{url}}/reservations/vehicle
+Content-Type: application/json
+
+{
+  "employeeName": "Cleaning Test 1",
+  "parkingSpotId": "{{parkingSpotId}}",
+  "licensePlate": "CLN1234",
+  "date": "{{tomorrow}}"
+}
+
+> {%
+    const location = response.headers.valueOf("Location");
+    if (location) {
+        client.global.set("tomorrowReservationId", location.split('/').pop());
+    }
+%}
+
+### Step 3: Create vehicle reservation for day after tomorrow
+POST {{url}}/reservations/vehicle
+Content-Type: application/json
+
+{
+  "employeeName": "Cleaning Test 2",
+  "parkingSpotId": "{{parkingSpotId}}",
+  "licensePlate": "CLN5678",
+  "date": "{{dayAfterTomorrow}}"
+}
+
+> {%
+    const location = response.headers.valueOf("Location");
+    if (location) {
+        client.global.set("dayAfterReservationId", location.split('/').pop());
+    }
+%}
+
+### Step 4: Schedule cleaning for tomorrow
+POST {{url}}/reservations/cleaning
+Content-Type: application/json
+
+{
+  "date": "{{tomorrow}}"
+}
+
+### Step 5: Verify results
+GET {{url}}/reservations
+
+> {%
+    const reservations = Array.isArray(response.body) ? response.body : [];
+    const spotId = "{{parkingSpotId}}".toLowerCase();
+    const tomorrow = client.global.get("tomorrow");
+    const dayAfter = client.global.get("dayAfterTomorrow");
+
+    const sameSpot = (r) =>
+        r.parkingSpotId && r.parkingSpotId.toLowerCase() === spotId;
+
+    const isDate = (r, date) =>
+        typeof r.date === "string" && r.date.startsWith(date);
+
+    const tomorrowReservation = reservations.find(
+        (r) => sameSpot(r) && isDate(r, tomorrow)
+    );
+    const dayAfterReservation = reservations.find(
+        (r) => sameSpot(r) && isDate(r, dayAfter)
+    );
+
+    client.assert(!!tomorrowReservation, "Expected reservation for tomorrow.");
+    client.assert(!!dayAfterReservation, "Expected reservation for the day after tomorrow.");
+
+    if (tomorrowReservation) {
+        client.global.set("cleaningReservationId", tomorrowReservation.id);
+        client.assert(
+            !tomorrowReservation.employeeName && !tomorrowReservation.licensePlate,
+            "Tomorrow should be a cleaning reservation (no employee/license)."
+        );
+    }
+
+    if (dayAfterReservation) {
+        client.assert(
+            !!dayAfterReservation.employeeName && !!dayAfterReservation.licensePlate,
+            "Day-after should remain a vehicle reservation."
+        );
+    }
+%}
+
+### Step 6: Cleanup day-after vehicle reservation
+DELETE {{url}}/reservations
+Content-Type: application/json
+
+{
+  "reservationId": "{{dayAfterReservationId}}"
+}
+

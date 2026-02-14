@@ -1,0 +1,65 @@
+# Scenario: create a vehicle reservation, update its license plate, then clean up.
+# Steps:
+# 1) Compute tomorrow's date
+# 2) POST vehicle reservation for tomorrow
+# 3) GET it by id
+# 4) PUT license plate update
+# 5) DELETE to clean up
+
+@url = http://localhost:5000
+@parkingSpotId = 00000000-0000-0000-0000-000000000001
+
+### Step 1: Compute tomorrow
+GET {{url}}/reservations
+
+> {%
+    const now = new Date();
+    const tomorrow = new Date(now);
+    tomorrow.setDate(now.getDate() + 1);
+
+    const yyyy = tomorrow.getFullYear();
+    const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+    const dd = String(tomorrow.getDate()).padStart(2, '0');
+    client.global.set("tomorrow", `${yyyy}-${mm}-${dd}`);
+
+    client.global.set("vehicleReservationId", "00000000-0000-0000-0000-000000000000");
+%}
+
+### Step 2: Create vehicle reservation for tomorrow
+POST {{url}}/reservations/vehicle
+Content-Type: application/json
+
+{
+  "employeeName": "Vehicle Test",
+  "parkingSpotId": "{{parkingSpotId}}",
+  "licensePlate": "VEH1234",
+  "date": "{{tomorrow}}"
+}
+
+> {%
+    const location = response.headers.valueOf("Location");
+    if (location) {
+        client.global.set("vehicleReservationId", location.split('/').pop());
+    }
+%}
+
+### Step 3: Get the created reservation
+GET {{url}}/reservations/{{vehicleReservationId}}
+
+### Step 4: Update license plate
+PUT {{url}}/reservations
+Content-Type: application/json
+
+{
+  "reservationId": "{{vehicleReservationId}}",
+  "licensePlate": "VEH9999"
+}
+
+### Step 5: Cleanup (delete created reservation)
+DELETE {{url}}/reservations
+Content-Type: application/json
+
+{
+  "reservationId": "{{vehicleReservationId}}"
+}
+

@@ -4,6 +4,9 @@
 - Integration tests run against PostgreSQL via Testcontainers (Docker required).
 - Add integration tests for domain validation errors (for example invalid license plate length) once exception handling middleware is introduced.
 
+## HTTP requests
+Sample HTTP request files are under `src/MySpot.Api/Http`.
+
 ## Pre-commit
 Install and enable the hooks:
 ```powershell

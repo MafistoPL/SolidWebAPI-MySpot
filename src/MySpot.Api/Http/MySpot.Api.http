@@ -1,0 +1,26 @@
+# Scenario: smoke-check read endpoints.
+# Steps:
+# 1) GET root
+# 2) GET reservations list and capture first id (if any)
+# 3) GET reservation by id (skip if none)
+
+@url = http://localhost:5000
+
+### Step 1: Health check
+GET {{url}}/
+
+### Step 2: Read all reservations
+GET {{url}}/reservations
+
+> {%
+    if (Array.isArray(response.body) && response.body.length > 0) {
+        client.global.set("reservationId", response.body[0].id);
+    } else {
+        client.global.clear("reservationId");
+    }
+%}
+
+### Step 3: Read single reservation by id
+# Skip this call if Step 2 returned no reservations.
+GET {{url}}/reservations/{{reservationId}}
+

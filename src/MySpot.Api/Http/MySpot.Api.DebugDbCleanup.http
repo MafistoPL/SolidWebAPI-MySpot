@@ -1,0 +1,45 @@
+# Scenario: debug cleanup for reservations.
+# Options:
+# - Manual: delete the first reservation (repeat as needed).
+# - Auto: delete all reservations in a loop.
+
+@url = http://localhost:5000
+
+### Step 1: List reservations and capture ids
+GET {{url}}/reservations
+
+> {%
+    const reservations = Array.isArray(response.body) ? response.body : [];
+    if (reservations.length > 0) {
+        client.global.set("firstReservationId", reservations[0].id);
+    } else {
+        client.global.clear("firstReservationId");
+    }
+%}
+
+### Step 2 (manual): Delete the first reservation
+# Run this step repeatedly to clear the database by hand.
+DELETE {{url}}/reservations
+Content-Type: application/json
+
+{
+  "reservationId": "{{firstReservationId}}"
+}
+
+### Step 3 (auto): Delete all reservations in a loop
+GET {{url}}/reservations
+
+> {%
+    const reservations = Array.isArray(response.body) ? response.body : [];
+    const baseUrl = "{{url}}";
+
+    reservations.forEach((r) => {
+        client.sendRequest({
+            method: "DELETE",
+            url: `${baseUrl}/reservations`,
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ reservationId: r.id })
+        });
+    });
+%}
+
