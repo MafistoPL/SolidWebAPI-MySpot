@@ -2,10 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySpot.Application.Abstractions;
-using MySpot.Application.DTO;
-using MySpot.Application.Queries;
 using MySpot.Core.Repositories;
-using MySpot.Infrastructure.DAL.Handlers;
 using MySpot.Infrastructure.DAL.Repository;
 
 namespace MySpot.Infrastructure.DAL;
@@ -30,12 +27,12 @@ internal static class Extensions
         services.AddHostedService<DatabaseInitializer>();
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
         
-        services
-            .AddScoped<IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>>,
-                GetWeeklyParkingSpotHandler>();
-        services
-            .AddScoped<IQueryHandler<GetReservation, ReservationDto?>,
-                GetReservationHandler>();
+        var infrastructureAssembly = typeof(AppOptions).Assembly;
+        services.Scan(s => s.FromAssemblies(infrastructureAssembly)
+            .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
+            .AsImplementedInterfaces()
+            .WithScopedLifetime()
+        );
         
         return services;
     }
