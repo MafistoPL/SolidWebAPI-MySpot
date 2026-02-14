@@ -14,11 +14,12 @@ public class VehicleReservation : Reservation
 
     public VehicleReservation(ReservationId id, 
         ParkingSpotId parkingSpotId,
+        ParkingSpotCapacity capacity,
         Date date, 
         Date now, 
         EmployeeName employeeName,
         LicensePlate licensePlate
-        ) : base(id, parkingSpotId, date, now)
+        ) : base(id, parkingSpotId, capacity, date, now)
     {
         EmployeeName = employeeName;
         ChangeLicensePlate(licensePlate);

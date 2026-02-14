@@ -17,6 +17,7 @@ public class WeeklyParkingSpotTests
         var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
+            ParkingSpotCapacityValue.Full,
             invalidDate,
             _now,
             "EmployeeName",
@@ -32,13 +33,14 @@ public class WeeklyParkingSpotTests
     }
     
     [Fact]
-    public void AddReservation_WithAlreadyReservedDate_ThrowsParkingSpotAlreadyReservedException()
+    public void AddReservation_WithAlreadyReservedDate_ThrowsParkingSpotCapacityExceededException()
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 11));
         var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
+            ParkingSpotCapacityValue.Full,
             validDate,
             _now,
             "EmployeeName",
@@ -51,7 +53,7 @@ public class WeeklyParkingSpotTests
         
         // Assert
         exception.ShouldNotBeNull();
-        exception.ShouldBeOfType<ParkingSpotAlreadyReservedException>();
+        exception.ShouldBeOfType<ParkingSpotCapacityExceededException>();
     }
 
     [Fact]
@@ -62,6 +64,7 @@ public class WeeklyParkingSpotTests
         var reservation = new VehicleReservation(
             Guid.NewGuid(),
             _weeklyParkingSpot.Id,
+            ParkingSpotCapacityValue.Full,
             validDate,
             _now,
             "EmployeeName",
@@ -83,7 +86,7 @@ public class WeeklyParkingSpotTests
     public WeeklyParkingSpotTests()
     {
         _now = new Date(new DateTime(2022, 08, 10));
-        _weeklyParkingSpot = new WeeklyParkingSpot(Guid.NewGuid(), new Week(_now), "P1");
+        _weeklyParkingSpot = WeeklyParkingSpot.Create(Guid.NewGuid(), new Week(_now), "P1");
     }
 
     #endregion

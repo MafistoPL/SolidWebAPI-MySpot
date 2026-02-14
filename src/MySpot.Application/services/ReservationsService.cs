@@ -62,6 +62,7 @@ public sealed class ReservationsService(
 
         var newReservation = new VehicleReservation(command.ReservationId, 
             command.ParkingSpotId,
+            command.Capacity,
             new Date(command.Date),
             new Date(clock.Current()),
             command.EmployeeName,

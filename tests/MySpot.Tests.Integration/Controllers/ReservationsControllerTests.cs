@@ -2,6 +2,7 @@ using System.Net;
 using System.Net.Http.Json;
 using MySpot.Application.Commands;
 using MySpot.Application.DTO;
+using MySpot.Core.ValueObjects;
 using MySpot.Tests.Integration.Infrastructure;
 
 namespace MySpot.Tests.Integration.Controllers;
@@ -78,6 +79,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
             Guid.Empty,
+            ParkingSpotCapacityValue.Full,
             _clock.Current(),
             "Employee",
             "ABC123");
@@ -179,6 +181,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpotId,
             Guid.Empty,
+            ParkingSpotCapacityValue.Full,
             date,
             "Employee",
             "ABC123");

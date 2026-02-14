@@ -7,6 +7,7 @@ public abstract class Reservation
 {
     public ReservationId Id { get; private set; } = null!;
     public ParkingSpotId ParkingSpotId { get; private set; } = null!;
+    public ParkingSpotCapacity Capacity { get; private set; } = null!;
     public Date Date { get; private set; } = null!;
 
     protected Reservation()
@@ -15,12 +16,14 @@ public abstract class Reservation
 
     public Reservation(ReservationId id,
         ParkingSpotId parkingSpotId,
+        ParkingSpotCapacity capacity,
         Date date,
         Date now)
     {
         Id = id;
         ParkingSpotId = parkingSpotId;
         SetDate(date, now);
+        Capacity = capacity;
     }
 
     public void SetDate(Date reservationDate, Date now)

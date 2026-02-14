@@ -9,19 +9,26 @@ public class  WeeklyParkingSpot
     
     public ParkingSpotId Id { get; private set; }
     public Week Week { get; private set; }
+    public ParkingSpotCapacity Capacity { get; private set; }
     public ParkingSpotName Name { get; private set; }
     public IEnumerable<Reservation> Reservations => _reservations;
 
-    public WeeklyParkingSpot()
+    private WeeklyParkingSpot()
     {
         
     }
     
-    public WeeklyParkingSpot(ParkingSpotId id, Week week, ParkingSpotName name)
+    private WeeklyParkingSpot(ParkingSpotId id, Week week, ParkingSpotName name, ParkingSpotCapacity capacity)
     {
         Id = id;
         Name = name;
         Week = week;
+        Capacity = capacity;
+    }
+    
+    public static WeeklyParkingSpot Create(ParkingSpotId id, Week week, ParkingSpotName name)
+    {
+        return new WeeklyParkingSpot(id, week, name, ParkingSpotCapacityValue.Full);
     }
 
     internal void AddReservation(Reservation newReservation, Date now)
@@ -36,11 +43,13 @@ public class  WeeklyParkingSpot
             throw new InvalidReservationDateException(reservationDay, weekFromDay, weekToDay);
         }
         
-        var reservationAlreadyExists = Reservations.Any(
-            reservation => reservation.Date == newReservation.Date);
-        if (reservationAlreadyExists)
+        var dateCapacity = _reservations
+            .Where(reservation => reservation.Date.Value.Date == reservationDay)
+            .Sum(x => (int)x.Capacity.Value);
+        
+        if (dateCapacity + (int)newReservation.Capacity.Value > (int)Capacity.Value)
         {
-            throw new ParkingSpotAlreadyReservedException(Name, (DateTime)newReservation.Date);
+            throw new ParkingSpotCapacityExceededException(Id);
         }
         
         _reservations.Add(newReservation);

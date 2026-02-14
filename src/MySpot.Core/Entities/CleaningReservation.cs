@@ -8,8 +8,11 @@ public class CleaningReservation : Reservation
     {
     }
     
-    public CleaningReservation(ReservationId id, ParkingSpotId parkingSpotId, Date date, Date now) 
-        : base(id, parkingSpotId, date, now)
+    public CleaningReservation(ReservationId id, 
+        ParkingSpotId parkingSpotId,
+        Date date,
+        Date now) 
+        : base(id, parkingSpotId, ParkingSpotCapacityValue.Full, date, now)
     {
     }
 }

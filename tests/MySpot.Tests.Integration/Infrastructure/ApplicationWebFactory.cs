@@ -227,9 +227,9 @@ public class ApplicationWebFactory : WebApplicationFactory<Program>, IAsyncLifet
         var week = new Week(new DateTimeOffset(Clock.Current()));
 
         context.WeeklyParkingSpots.AddRange(
-            new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000001"), week, "P1"),
-            new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000002"), week, "P2"),
-            new WeeklyParkingSpot(Guid.Parse("00000000-0000-0000-0000-000000000003"), week, "P3")
+            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000001"), week, "P1"),
+            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000002"), week, "P2"),
+            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000003"), week, "P3")
         );
 
         await context.SaveChangesAsync();

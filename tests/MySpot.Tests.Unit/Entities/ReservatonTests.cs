@@ -22,6 +22,7 @@ public class ReservatonTests
             () => new VehicleReservation(
                 Guid.NewGuid(),
                 weeklyParkingSpotId,
+                ParkingSpotCapacityValue.Full,
                 invalidDate,
                 now,
                 "EmployeeName",

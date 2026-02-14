@@ -4,6 +4,7 @@ using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
 using MySpot.Core.Policies;
 using MySpot.Core.Repositories;
+using MySpot.Core.ValueObjects;
 using MySpot.Infrastructure.DAL.Repository;
 using Shouldly;
 using MySpot.Tests.Unit.Infrastructure;
@@ -20,6 +21,7 @@ public class ReservationsServiceTests
         var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
+            ParkingSpotCapacityValue.Full,
             _clock.Current().Date,
             "John Doe",
             "ABC-123"
@@ -40,6 +42,7 @@ public class ReservationsServiceTests
         var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
+            ParkingSpotCapacityValue.Full,
             _clock.Current().Date,
             "John Doe",
             "ABC-123");
@@ -60,6 +63,7 @@ public class ReservationsServiceTests
         var vehicleCommand = new ReserveParkingSpotForVehicleCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
+            ParkingSpotCapacityValue.Full,
             cleaningDate,
             "John Doe",
             "ABC-123");
