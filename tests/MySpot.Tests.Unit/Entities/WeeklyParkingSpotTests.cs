@@ -10,7 +10,7 @@ public class WeeklyParkingSpotTests
     [Theory]
     [InlineData("2022-08-17")]
     [InlineData("2022-08-27")]
-    public void AddReservation_WithInvalidDate_ThrowsInvalidReservationDateException(string dateString)
+    public void AddReservation_InvalidDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
         var invalidDate = new Date(DateTime.Parse(dateString));
@@ -33,7 +33,7 @@ public class WeeklyParkingSpotTests
     }
     
     [Fact]
-    public void AddReservation_WithAlreadyReservedDate_ThrowsParkingSpotCapacityExceededException()
+    public void AddReservation_FullCapacity_ThrowsParkingSpotCapacityExceededException()
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 11));
@@ -57,7 +57,7 @@ public class WeeklyParkingSpotTests
     }
 
     [Fact]
-    public void AddReservation_WithValidDate_AddsReservation()
+    public void AddReservation_ValidDate_AddsReservation()
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 11));
@@ -79,7 +79,7 @@ public class WeeklyParkingSpotTests
     }
 
     [Fact]
-    public void AddReservation_WhenTotalCapacityWithinLimit_AllowsMultipleReservations()
+    public void AddReservation_CapacityWithinLimit_AddsMultipleReservations()
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 12));
@@ -109,7 +109,7 @@ public class WeeklyParkingSpotTests
     }
 
     [Fact]
-    public void AddReservation_WhenTotalCapacityExceeded_ThrowsParkingSpotCapacityExceededException()
+    public void AddReservation_CapacitySumExceeded_ThrowsParkingSpotCapacityExceededException()
     {
         // Arrange
         var validDate = new Date(new DateTime(2022, 08, 13));

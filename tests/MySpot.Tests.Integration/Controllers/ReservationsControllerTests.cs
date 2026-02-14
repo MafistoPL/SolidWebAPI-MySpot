@@ -38,7 +38,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Get_ReturnsNotFound_ForMissingReservation()
+    public async Task GetById_MissingReservation_ReturnsNotFound()
     {
         var response = await _backend.GetAsync($"{ReservationsController.Path}/{Guid.NewGuid()}");
 
@@ -46,7 +46,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostVehicle_CreatesReservation_AndGetByIdReturnsOk()
+    public async Task PostVehicle_ValidRequest_CreatesReservationAndGetByIdReturnsOk()
     {
         var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, _clock.Current());
         try
@@ -65,7 +65,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostVehicle_AllowsMultipleReservations_OnSameSpot_WhenCapacityAllows()
+    public async Task PostVehicle_CapacityAllows_AddsMultipleReservationsOnSameSpot()
     {
         var reservationDate = new DateTime(2022, 08, 14);
         await DeleteReservationsForDateAsync(reservationDate);
@@ -102,7 +102,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostVehicle_ReturnsBadRequest_WhenCapacityExceeded()
+    public async Task PostVehicle_CapacityExceeded_ReturnsBadRequest()
     {
         var reservationDate = new DateTime(2022, 08, 12);
         await DeleteReservationsForDateAsync(reservationDate);
@@ -141,7 +141,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostVehicle_ReturnsBadRequest_ForUnknownParkingSpot()
+    public async Task PostVehicle_UnknownParkingSpot_ReturnsBadRequest()
     {
         var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
@@ -157,7 +157,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostCleaning_ReturnsOk_AndReplacesReservationsForDate()
+    public async Task PostCleaning_ValidDate_ReplacesReservationsAndReturnsOk()
     {
         var cleaningDate = new DateTime(2022, 08, 13);
         await DeleteReservationsForDateAsync(cleaningDate);
@@ -191,7 +191,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task PostCleaning_ReturnsBadRequest_ForPastDate()
+    public async Task PostCleaning_PastDate_ReturnsBadRequest()
     {
         var command = new ReserveParkingSpotForCleaningCommand(
             _clock.Current().AddDays(-1));
@@ -202,7 +202,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Put_ReturnsOk_ForExistingReservation()
+    public async Task Put_ExistingReservation_ReturnsOk()
     {
         var reservationId = await CreateVehicleReservationAsync(ParkingSpotId2, _clock.Current());
         try
@@ -218,7 +218,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Put_ReturnsNotFound_ForMissingReservation()
+    public async Task Put_MissingReservation_ReturnsBadRequest()
     {
         var response = await UpdateLicensePlateAsync(Guid.NewGuid(), "XYZ987");
 
@@ -226,7 +226,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Delete_ReturnsNoContent_ForExistingReservation()
+    public async Task Delete_ExistingReservation_ReturnsNoContent()
     {
         var reservationId = await CreateVehicleReservationAsync(ParkingSpotId3, _clock.Current());
 
@@ -236,7 +236,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Delete_ReturnsBadRequest_ForMissingReservation()
+    public async Task Delete_MissingReservation_ReturnsBadRequest()
     {
         var response = await DeleteReservationAsync(Guid.NewGuid());
 

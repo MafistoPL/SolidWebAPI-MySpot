@@ -32,7 +32,7 @@ public class ParkingSpotsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task GetAll_ReturnsOk()
+    public async Task GetAll_NoParams_ReturnsOk()
     {
         var response = await _backend.GetAsync($"{ParkingSpotsController.Path}");
 

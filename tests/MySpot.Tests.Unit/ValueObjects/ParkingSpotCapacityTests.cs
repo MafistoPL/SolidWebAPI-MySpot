@@ -11,7 +11,7 @@ public class ParkingSpotCapacityTests
     [InlineData(ParkingSpotCapacityValue.Half)]
     [InlineData(ParkingSpotCapacityValue.ThreeQuarter)]
     [InlineData(ParkingSpotCapacityValue.Full)]
-    public void Ctor_WithValidValue_Succeeds(ParkingSpotCapacityValue value)
+    public void Ctor_ValidValue_CreatesObject(ParkingSpotCapacityValue value)
     {
         // Act
         var capacity = new ParkingSpotCapacity(value);
@@ -24,7 +24,7 @@ public class ParkingSpotCapacityTests
     [InlineData(0)]
     [InlineData(-1)]
     [InlineData(5)]
-    public void Ctor_WithInvalidValue_Throws(int rawValue)
+    public void Ctor_InvalidValue_ThrowsInvalidParkingSpotCapacityException(int rawValue)
     {
         // Arrange
         var value = (ParkingSpotCapacityValue)rawValue;

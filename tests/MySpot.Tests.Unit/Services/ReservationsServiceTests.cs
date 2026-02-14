@@ -16,7 +16,7 @@ namespace MySpot.Tests.Unit.Services;
 public class ReservationsServiceTests
 {
     [Fact]
-    public async Task ReserveForVehicleAsync_WithCorrectDate_ShouldSucceed()
+    public async Task ReserveForVehicleAsync_ValidDate_DoesNotThrow()
     {
         // Arrange
         var parkingSpot = (await _weeklyParkingSpotRepository.GetAllAsync()).First();
@@ -38,7 +38,7 @@ public class ReservationsServiceTests
     }
 
     [Fact]
-    public async Task ReserveForVehicleAsync_ReturnsNull_ForUnknownParkingSpot()
+    public async Task ReserveForVehicleAsync_UnknownParkingSpot_ThrowsWeeklyParkingSpotNotFoundException()
     {
         // Arrange
         var command = new ReserveParkingSpotForVehicleCommand(
@@ -58,7 +58,7 @@ public class ReservationsServiceTests
     }
 
     [Fact]
-    public async Task ReserveForCleaningAsync_ReplacesReservationsForDate()
+    public async Task ReserveForCleaningAsync_ValidDate_ReplacesReservations()
     {
         // Arrange
         var cleaningDate = _clock.Current().Date.AddDays(2);
@@ -91,7 +91,7 @@ public class ReservationsServiceTests
     }
 
     [Fact]
-    public async Task ChangeReservationLicensePlateCommandHandler_ForCleaningReservation_ShouldThrowReservationNotFound()
+    public async Task ChangeReservationLicensePlate_CleaningReservation_ThrowsReservationNotFoundException()
     {
         // Arrange
         var cleaningDate = _clock.Current().Date.AddDays(1);

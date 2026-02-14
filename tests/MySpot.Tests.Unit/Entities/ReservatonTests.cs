@@ -9,7 +9,7 @@ public class ReservatonTests
 {
     [Theory]
     [InlineData("2022-08-09")]
-    public void VehicleReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
+    public void VehicleReservationCtor_PastDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
         var nowValue = new DateTime(2022, 08, 10);
@@ -35,7 +35,7 @@ public class ReservatonTests
 
     [Theory]
     [InlineData("2022-08-09")]
-    public void CleaningReservationCtor_WithPassedDate_ThrowsInvalidReservationDateException(string dateString)
+    public void CleaningReservationCtor_PastDate_ThrowsInvalidReservationDateException(string dateString)
     {
         // Arrange
         var nowValue = new DateTime(2022, 08, 10);
