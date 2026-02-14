@@ -22,7 +22,7 @@ public sealed class ReservationsService(
         return reservations.SingleOrDefault(spot => spot.Id == id);
     }
 
-    public async Task<IEnumerable<ReservationDto>> GetAllWeeklyAsync()
+    private async Task<IEnumerable<ReservationDto>> GetAllWeeklyAsync()
     {
         var weeklyParkingSpots = await weeklyParkingSpotRepository.GetAllAsync();
         
@@ -44,19 +44,5 @@ public sealed class ReservationsService(
                     Date = reservation.Date.Value.Date
                 };
             });
-    }
-
-    public async Task ReserveForCleaningAsync(ReserveParkingSpotForCleaningCommand command)
-    {
-        var week = new Week(command.Date);
-        var weeklyParkingSpots = (await weeklyParkingSpotRepository
-                .GetByWeekAsync(week))
-            .ToList();
-        
-        var reservationsToRemove = parkingReservationService.ReserveParkingForCleaning(
-            weeklyParkingSpots, new Date(command.Date));
-
-        await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpots);
-        await reservationRepository.RemoveAsync(reservationsToRemove);
     }
 }

@@ -21,7 +21,11 @@ public static class Extensions
         services
             .AddScoped<ICommandHandler<DeleteReservationCommand>,
                 DeleteReservationCommandHandler>();
-
+        
+        services
+            .AddScoped<ICommandHandler<ReserveParkingSpotForCleaningCommand>,
+                ReserveParkingSpotForCleaningCommandHandler>();
+        
         return services;
     }
 }

@@ -13,6 +13,7 @@ public class ReservationsController(IReservationsService reservationsService,
     ICommandHandler<ReserveParkingSpotForVehicleCommand> reserveParkingSpotForVehicleCommandHandler,
     ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
     ICommandHandler<DeleteReservationCommand> deleteReservationCommandHandler,
+    ICommandHandler<ReserveParkingSpotForCleaningCommand> reserveParkingSpotForCleaningCommandHandler,
     IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
     ) : ControllerBase
 {
@@ -47,7 +48,7 @@ public class ReservationsController(IReservationsService reservationsService,
     [HttpPost("cleaning")]
     public async Task<ActionResult> Post([FromBody] ReserveParkingSpotForCleaningCommand command)
     {
-        await reservationsService.ReserveForCleaningAsync(command);
+        await reserveParkingSpotForCleaningCommandHandler.HandleAsync(command);
         
         return Ok();
     }

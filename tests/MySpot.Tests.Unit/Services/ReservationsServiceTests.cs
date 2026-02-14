@@ -75,7 +75,7 @@ public class ReservationsServiceTests
         await _reserveParkingSpotForVehicleCommandHandler.HandleAsync(vehicleCommand);
 
         // Act
-        await _reservationsService.ReserveForCleaningAsync(
+        await _reserveParkingSpotForCleaningCommandHandler.HandleAsync(
             new ReserveParkingSpotForCleaningCommand(cleaningDate));
 
         // Assert
@@ -96,7 +96,7 @@ public class ReservationsServiceTests
     {
         // Arrange
         var cleaningDate = _clock.Current().Date.AddDays(1);
-        await _reservationsService.ReserveForCleaningAsync(
+        await _reserveParkingSpotForCleaningCommandHandler.HandleAsync(
             new ReserveParkingSpotForCleaningCommand(cleaningDate));
 
         var weeklyParkingSpot = (await _weeklyParkingSpotRepository.GetAllAsync()).First();
@@ -128,6 +128,7 @@ public class ReservationsServiceTests
     
     private readonly ReserveParkingSpotForVehicleCommandHandler _reserveParkingSpotForVehicleCommandHandler;
     private readonly ChangeReservationLicensePlateCommandHandler _changeReservationLicensePlateCommandHandler;
+    private readonly ReserveParkingSpotForCleaningCommandHandler _reserveParkingSpotForCleaningCommandHandler;
     
     public ReservationsServiceTests()
     {
@@ -156,6 +157,10 @@ public class ReservationsServiceTests
             _clock);
         _changeReservationLicensePlateCommandHandler = new ChangeReservationLicensePlateCommandHandler(
             _weeklyParkingSpotRepository);
+        _reserveParkingSpotForCleaningCommandHandler = new ReserveParkingSpotForCleaningCommandHandler(
+            _weeklyParkingSpotRepository,
+            parkingReservationService,
+            _reservationRepository);
     }
     
     #endregion
