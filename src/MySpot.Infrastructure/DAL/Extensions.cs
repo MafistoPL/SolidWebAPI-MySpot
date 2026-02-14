@@ -33,6 +33,9 @@ internal static class Extensions
         services
             .AddScoped<IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>>,
                 GetWeeklyParkingSpotHandler>();
+        services
+            .AddScoped<IQueryHandler<GetReservation, ReservationDto?>,
+                GetReservationHandler>();
         
         return services;
     }

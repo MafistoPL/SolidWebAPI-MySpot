@@ -1,4 +1,3 @@
-using MySpot.Application.services;
 using MySpot.Core.Abstractions;
 
 namespace MySpot.Tests.Unit.Infrastructure;

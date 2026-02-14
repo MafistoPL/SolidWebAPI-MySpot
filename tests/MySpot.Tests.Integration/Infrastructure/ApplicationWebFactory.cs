@@ -6,7 +6,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using MySpot.Api;
-using MySpot.Application.services;
 using MySpot.Core.Abstractions;
 using MySpot.Core.Entities;
 using MySpot.Core.ValueObjects;

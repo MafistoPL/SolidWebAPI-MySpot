@@ -3,17 +3,17 @@ using MySpot.Application.Abstractions;
 using MySpot.Application.Commands;
 using MySpot.Application.DTO;
 using MySpot.Application.Queries;
-using MySpot.Application.services;
 
 namespace MySpot.Api.Controllers;
 
 [ApiController]
 [Route(Path)]
-public class ReservationsController(IReservationsService reservationsService,
+public class ReservationsController(
     ICommandHandler<ReserveParkingSpotForVehicleCommand> reserveParkingSpotForVehicleCommandHandler,
     ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
     ICommandHandler<DeleteReservationCommand> deleteReservationCommandHandler,
     ICommandHandler<ReserveParkingSpotForCleaningCommand> reserveParkingSpotForCleaningCommandHandler,
+    IQueryHandler<GetReservation, ReservationDto?> getReservationQueryHandler,
     IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
     ) : ControllerBase
 {
@@ -24,15 +24,14 @@ public class ReservationsController(IReservationsService reservationsService,
         => Ok(await getWeeklyParkingSpotsQueryHandler.HandleAsync(query));
 
     [HttpGet("{id:guid}")]
-    public async Task<ActionResult<ReservationDto?>> Get(Guid id)
+    public async Task<ActionResult<ReservationDto?>> GetById(Guid id)
     {
-        ReservationDto? reservation = await reservationsService.GetAsync(id);
-
-        if (reservation == null)
+        var reservation = await getReservationQueryHandler.HandleAsync(new GetReservation { Id = id });
+        if (reservation is null)
         {
             return NotFound();
         }
-        
+
         return Ok(reservation);
     }
     
@@ -42,7 +41,7 @@ public class ReservationsController(IReservationsService reservationsService,
         command = command with { ReservationId = Guid.NewGuid() };
         await reserveParkingSpotForVehicleCommandHandler.HandleAsync(command);
 
-        return CreatedAtAction(nameof(Get), new { id = command.ReservationId }, null);
+        return CreatedAtAction(nameof(GetById), new { id = command.ReservationId }, null);
     }
 
     [HttpPost("cleaning")]

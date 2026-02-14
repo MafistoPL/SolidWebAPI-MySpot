@@ -2,7 +2,6 @@
 using MySpot.Application.Commands;
 using MySpot.Application.Commands.Handlers;
 using MySpot.Application.Exceptions;
-using MySpot.Application.services;
 using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
 using MySpot.Core.Policies;
@@ -118,8 +117,6 @@ public class ReservationsServiceTests
     }
     
     #region Arrange
-    
-    private readonly ReservationsService _reservationsService;
 
     private readonly TestClock _clock = new(new DateTime(2022, 08, 10, 12, 0, 0));
     
@@ -144,12 +141,6 @@ public class ReservationsServiceTests
             
         ParkingReservationService parkingReservationService 
             = new ParkingReservationService(reservationPolicies, _clock);
-        
-        _reservationsService = new ReservationsService(
-            _weeklyParkingSpotRepository,
-            _reservationRepository,
-            parkingReservationService,
-            _clock);
 
         _reserveParkingSpotForVehicleCommandHandler = new ReserveParkingSpotForVehicleCommandHandler(
             _weeklyParkingSpotRepository,
