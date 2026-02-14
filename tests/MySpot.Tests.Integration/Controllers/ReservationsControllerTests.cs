@@ -74,6 +74,82 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
+    public async Task PostVehicle_AllowsMultipleReservations_OnSameSpot_WhenCapacityAllows()
+    {
+        var reservationDate = new DateTime(2022, 08, 14);
+        await DeleteReservationsForDateAsync(reservationDate);
+        var firstReservationId = await CreateVehicleReservationAsync(
+            ParkingSpotId1,
+            reservationDate,
+            ParkingSpotCapacityValue.Half,
+            "Employee-1",
+            "CAP-111");
+        var secondReservationId = await CreateVehicleReservationAsync(
+            ParkingSpotId1,
+            reservationDate,
+            ParkingSpotCapacityValue.Half,
+            "Employee-2",
+            "CAP-222");
+
+        try
+        {
+            var reservations = await GetAllReservationsAsync();
+            var reservationsForSpotDate = reservations
+                .Where(reservation =>
+                    reservation.ParkingSpotId == ParkingSpotId1 &&
+                    reservation.Date.Date == reservationDate.Date)
+                .ToList();
+
+            Assert.Contains(reservationsForSpotDate, reservation => reservation.Id == firstReservationId);
+            Assert.Contains(reservationsForSpotDate, reservation => reservation.Id == secondReservationId);
+        }
+        finally
+        {
+            await DeleteReservationIfExistsAsync(firstReservationId);
+            await DeleteReservationIfExistsAsync(secondReservationId);
+        }
+    }
+
+    [Fact]
+    public async Task PostVehicle_ReturnsBadRequest_WhenCapacityExceeded()
+    {
+        var reservationDate = new DateTime(2022, 08, 15);
+        await DeleteReservationsForDateAsync(reservationDate);
+        var firstReservationId = await CreateVehicleReservationAsync(
+            ParkingSpotId1,
+            reservationDate,
+            ParkingSpotCapacityValue.Half,
+            "Employee-3",
+            "CAP-333");
+        var secondReservationId = await CreateVehicleReservationAsync(
+            ParkingSpotId1,
+            reservationDate,
+            ParkingSpotCapacityValue.Half,
+            "Employee-4",
+            "CAP-444");
+
+        try
+        {
+            var command = new ReserveParkingSpotForVehicleCommand(
+                ParkingSpotId1,
+                Guid.Empty,
+                ParkingSpotCapacityValue.OneQuarter,
+                reservationDate,
+                "Employee-5",
+                "CAP-555");
+
+            var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
+
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+        finally
+        {
+            await DeleteReservationIfExistsAsync(firstReservationId);
+            await DeleteReservationIfExistsAsync(secondReservationId);
+        }
+    }
+
+    [Fact]
     public async Task PostVehicle_ReturnsBadRequest_ForUnknownParkingSpot()
     {
         var command = new ReserveParkingSpotForVehicleCommand(
@@ -178,13 +254,28 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
 
     private async Task<Guid> CreateVehicleReservationAsync(Guid parkingSpotId, DateTime date)
     {
+        return await CreateVehicleReservationAsync(
+            parkingSpotId,
+            date,
+            ParkingSpotCapacityValue.Full,
+            "Employee",
+            "ABC123");
+    }
+
+    private async Task<Guid> CreateVehicleReservationAsync(
+        Guid parkingSpotId,
+        DateTime date,
+        ParkingSpotCapacityValue capacity,
+        string employeeName,
+        string licensePlate)
+    {
         var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpotId,
             Guid.Empty,
-            ParkingSpotCapacityValue.Full,
+            capacity,
             date,
-            "Employee",
-            "ABC123");
+            employeeName,
+            licensePlate);
 
         var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
         if (response.StatusCode != HttpStatusCode.Created)
