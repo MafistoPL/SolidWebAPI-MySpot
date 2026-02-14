@@ -246,11 +246,11 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     }
 
     [Fact]
-    public async Task Delete_ReturnsNotFound_ForMissingReservation()
+    public async Task Delete_ReturnsBadRequest_ForMissingReservation()
     {
         var response = await DeleteReservationAsync(Guid.NewGuid());
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     private async Task<Guid> CreateVehicleReservationAsync(Guid parkingSpotId, DateTime date)
@@ -333,7 +333,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     {
         var response = await DeleteReservationAsync(reservationId);
         if (response.StatusCode != HttpStatusCode.NoContent &&
-            response.StatusCode != HttpStatusCode.NotFound)
+            response.StatusCode != HttpStatusCode.BadRequest)
         {
             var body = await response.Content.ReadAsStringAsync();
             Assert.Fail($"Expected cleanup to return NoContent or NotFound but got {response.StatusCode}. Body: {body}");

@@ -18,6 +18,10 @@ public static class Extensions
             .AddScoped<ICommandHandler<ChangeReservationLicensePlateCommand>,
                 ChangeReservationLicensePlateCommandHandler>();
         
+        services
+            .AddScoped<ICommandHandler<DeleteReservationCommand>,
+                DeleteReservationCommandHandler>();
+
         return services;
     }
 }

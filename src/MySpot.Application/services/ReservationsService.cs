@@ -59,17 +59,4 @@ public sealed class ReservationsService(
         await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpots);
         await reservationRepository.RemoveAsync(reservationsToRemove);
     }
-    
-    public async Task<bool> DeleteAsync(DeleteReservationCommand command)
-    {
-        var existingReservation = await reservationRepository.GetAsync(command.ReservationId);
-        if (existingReservation == null)
-        {
-            return false;
-        }
-        
-        await reservationRepository.RemoveAsync(existingReservation);
-        
-        return true;
-    }
 }

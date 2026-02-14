@@ -24,7 +24,7 @@ public sealed class ReserveParkingSpotForVehicleCommandHandler(
         
         if (parkingSpotToReserve == null)
         {
-            throw new WeeklyParkingSpotNotFound((ParkingSpotId)command.ParkingSpotId);
+            throw new WeeklyParkingSpotNotFoundException((ParkingSpotId)command.ParkingSpotId);
         }
 
         var newReservation = new VehicleReservation(command.ReservationId, 

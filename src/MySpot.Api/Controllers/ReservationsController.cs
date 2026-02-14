@@ -12,6 +12,7 @@ namespace MySpot.Api.Controllers;
 public class ReservationsController(IReservationsService reservationsService,
     ICommandHandler<ReserveParkingSpotForVehicleCommand> reserveParkingSpotForVehicleCommandHandler,
     ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
+    ICommandHandler<DeleteReservationCommand> deleteReservationCommandHandler,
     IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
     ) : ControllerBase
 {
@@ -62,10 +63,7 @@ public class ReservationsController(IReservationsService reservationsService,
     [HttpDelete()]
     public async Task<ActionResult> Delete(DeleteReservationCommand command)
     {
-        if (!await reservationsService.DeleteAsync(command))
-        {
-            return NotFound();
-        }
+        await deleteReservationCommandHandler.HandleAsync(command);
 
         return NoContent();
     }

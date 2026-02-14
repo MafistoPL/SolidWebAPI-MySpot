@@ -14,7 +14,7 @@ public class ChangeReservationLicensePlateCommandHandler(IWeeklyParkingSpotRepos
         var weeklyParkingSpot = await GetWeeklyParkingSpotByReservation(command.ReservationId);
         if (weeklyParkingSpot == null)
         {
-            throw new WeeklyParkingSpotNotFound((ReservationId)command.ReservationId);
+            throw new WeeklyParkingSpotNotFoundException((ReservationId)command.ReservationId);
         }
         
         var existingReservation = weeklyParkingSpot.Reservations.
@@ -23,7 +23,7 @@ public class ChangeReservationLicensePlateCommandHandler(IWeeklyParkingSpotRepos
                 reservation => reservation.Id.Value == command.ReservationId);
         if (existingReservation == null)
         {
-            throw new ReservationNotFound(command.ReservationId);
+            throw new ReservationNotFoundException(command.ReservationId);
         }
 
         existingReservation.ChangeLicensePlate(command.LicensePlate);

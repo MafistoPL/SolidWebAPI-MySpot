@@ -55,7 +55,7 @@ public class ReservationsServiceTests
             () => _reserveParkingSpotForVehicleCommandHandler.HandleAsync(command));
 
         // Assert
-        exception.ShouldBeOfType<WeeklyParkingSpotNotFound>();
+        exception.ShouldBeOfType<WeeklyParkingSpotNotFoundException>();
     }
 
     [Fact]
@@ -114,7 +114,7 @@ public class ReservationsServiceTests
             () => _changeReservationLicensePlateCommandHandler.HandleAsync(command));
 
         // Assert
-        exception.ShouldBeOfType<ReservationNotFound>();
+        exception.ShouldBeOfType<ReservationNotFoundException>();
     }
     
     #region Arrange
