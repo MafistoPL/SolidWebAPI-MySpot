@@ -86,9 +86,11 @@ public sealed class ReservationsService(
                 .GetByWeekAsync(week))
             .ToList();
         
-        parkingReservationService.ReserveParkingForCleaning(weeklyParkingSpots, new Date(command.Date));
+        var reservationsToRemove = parkingReservationService.ReserveParkingForCleaning(
+            weeklyParkingSpots, new Date(command.Date));
 
         await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpots);
+        await reservationRepository.RemoveAsync(reservationsToRemove);
     }
 
     public async Task<bool> ChangeReservationLicensePlateAsync(ChangeReservationLicensePlateCommand command)

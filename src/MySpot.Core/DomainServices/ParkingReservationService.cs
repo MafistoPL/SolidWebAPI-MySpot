@@ -34,17 +34,22 @@ internal sealed class ParkingReservationService(
         parkingSpotToReserve.AddReservation(reservation, new Date(clock.Current()));
     }
 
-    public void ReserveParkingForCleaning(IEnumerable<WeeklyParkingSpot> allParkingSpots, Date date)
+    public IEnumerable<Reservation> ReserveParkingForCleaning(IEnumerable<WeeklyParkingSpot> allParkingSpots, Date date)
     {
+        List<Reservation> reservationsToRemove = new List<Reservation>();
+        
         foreach (WeeklyParkingSpot weeklyParkingSpot in allParkingSpots)
         {
             var reservations = weeklyParkingSpot.Reservations.Where(
-                x => x.Date.Value.Date == date.Value.Date);
+                x => x.Date.Value.Date == date.Value.Date).ToList();
+            reservationsToRemove.AddRange(reservations);
             weeklyParkingSpot.RemoveReservations(reservations);
             
             var cleaningReservation = new CleaningReservation(
                 ReservationId.Create(), weeklyParkingSpot.Id, date, new Date(clock.Current()));
             weeklyParkingSpot.AddReservation(cleaningReservation, date);
         }
+        
+        return reservationsToRemove;
     }
 }

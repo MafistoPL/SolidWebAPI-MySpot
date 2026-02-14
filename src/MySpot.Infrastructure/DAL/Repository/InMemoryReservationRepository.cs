@@ -34,4 +34,14 @@ public class InMemoryReservationRepository : IReservationRepository
         
         return Task.CompletedTask;
     }
+
+    public Task RemoveAsync(IEnumerable<Reservation> reservations)
+    {
+        foreach (Reservation reservation in reservations)
+        {
+            _reservations.Remove(reservation);
+        }
+        
+        return Task.CompletedTask;
+    }
 }
