@@ -15,6 +15,10 @@ GET {{url}}/reservations
     } else {
         client.global.clear("firstReservationId");
     }
+    client.global.set(
+        "reservationIds",
+        reservations.map((r) => r.id)
+    );
 %}
 
 ### Step 2 (manual): Delete the first reservation
@@ -26,20 +30,11 @@ Content-Type: application/json
   "reservationId": "{{firstReservationId}}"
 }
 
-### Step 3 (auto): Delete all reservations in a loop
-GET {{url}}/reservations
+### Step 3 (auto): Delete all reservations from the latest list
+# Run Step 1 first (or Run All). The HTTP client will iterate over {{reservationIds}}.
+DELETE {{url}}/reservations
+Content-Type: application/json
 
-> {%
-    const reservations = Array.isArray(response.body) ? response.body : [];
-    const baseUrl = "{{url}}";
-
-    reservations.forEach((r) => {
-        client.sendRequest({
-            method: "DELETE",
-            url: `${baseUrl}/reservations`,
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ reservationId: r.id })
-        });
-    });
-%}
-
+{
+  "reservationId": "{{reservationIds}}"
+}
