@@ -14,6 +14,9 @@ public static class Extensions
         services
             .AddScoped<ICommandHandler<ReserveParkingSpotForVehicleCommand>,
                 ReserveParkingSpotForVehicleCommandHandler>();
+        services
+            .AddScoped<ICommandHandler<ChangeReservationLicensePlateCommand>,
+                ChangeReservationLicensePlateCommandHandler>();
         
         return services;
     }

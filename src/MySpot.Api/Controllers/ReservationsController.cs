@@ -8,12 +8,15 @@ using MySpot.Application.services;
 namespace MySpot.Api.Controllers;
 
 [ApiController]
-[Route("reservations")]
+[Route(Path)]
 public class ReservationsController(IReservationsService reservationsService,
     ICommandHandler<ReserveParkingSpotForVehicleCommand> reserveParkingSpotForVehicleCommandHandler,
+    ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
     IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
     ) : ControllerBase
 {
+    public const string Path = "reservations";
+    
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ReservationDto>>> Get([FromQuery] GetWeeklyParkingSpots query) 
         => Ok(await getWeeklyParkingSpotsQueryHandler.HandleAsync(query));
@@ -51,11 +54,8 @@ public class ReservationsController(IReservationsService reservationsService,
     [HttpPut()]
     public async Task<ActionResult> Put(ChangeReservationLicensePlateCommand command)
     {
-        if (!await reservationsService.ChangeReservationLicensePlateAsync(command))
-        {
-            return NotFound();
-        }
-
+        await changeReservationLicensePlateCommandHandler.HandleAsync(command);
+        
         return Ok();
     }
 

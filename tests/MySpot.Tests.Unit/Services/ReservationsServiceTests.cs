@@ -92,7 +92,7 @@ public class ReservationsServiceTests
     }
 
     [Fact]
-    public async Task ChangeReservationLicensePlateAsync_ReturnsFalse_ForCleaningReservation()
+    public async Task ChangeReservationLicensePlateCommandHandler_ForCleaningReservation_ShouldThrowReservationNotFound()
     {
         // Arrange
         var cleaningDate = _clock.Current().Date.AddDays(1);
@@ -108,12 +108,13 @@ public class ReservationsServiceTests
         var command = new ChangeReservationLicensePlateCommand(
             cleaningReservationId,
             "XYZ-987");
-
+        
         // Act
-        var result = await _reservationsService.ChangeReservationLicensePlateAsync(command);
+        var exception = await Record.ExceptionAsync(
+            () => _changeReservationLicensePlateCommandHandler.HandleAsync(command));
 
         // Assert
-        result.ShouldBeFalse();
+        exception.ShouldBeOfType<ReservationNotFound>();
     }
     
     #region Arrange
@@ -126,6 +127,7 @@ public class ReservationsServiceTests
     private readonly IReservationRepository _reservationRepository;
     
     private readonly ReserveParkingSpotForVehicleCommandHandler _reserveParkingSpotForVehicleCommandHandler;
+    private readonly ChangeReservationLicensePlateCommandHandler _changeReservationLicensePlateCommandHandler;
     
     public ReservationsServiceTests()
     {
@@ -152,6 +154,8 @@ public class ReservationsServiceTests
             _weeklyParkingSpotRepository,
             parkingReservationService,
             _clock);
+        _changeReservationLicensePlateCommandHandler = new ChangeReservationLicensePlateCommandHandler(
+            _weeklyParkingSpotRepository);
     }
     
     #endregion

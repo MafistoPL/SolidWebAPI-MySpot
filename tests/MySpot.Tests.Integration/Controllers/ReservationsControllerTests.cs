@@ -1,5 +1,6 @@
 using System.Net;
 using System.Net.Http.Json;
+using MySpot.Api.Controllers;
 using MySpot.Application.Commands;
 using MySpot.Application.DTO;
 using MySpot.Core.ValueObjects;
@@ -39,7 +40,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task GetAll_ReturnsOk()
     {
-        var response = await _backend.GetAsync("reservations");
+        var response = await _backend.GetAsync($"{ReservationsController.Path}");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var reservations = await response.Content.ReadFromJsonAsync<List<WeeklyParkingSpotDto>>();
@@ -49,7 +50,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task Get_ReturnsNotFound_ForMissingReservation()
     {
-        var response = await _backend.GetAsync($"reservations/{Guid.NewGuid()}");
+        var response = await _backend.GetAsync($"{ReservationsController.Path}/{Guid.NewGuid()}");
 
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
@@ -60,7 +61,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, _clock.Current());
         try
         {
-            var response = await _backend.GetAsync($"reservations/{reservationId}");
+            var response = await _backend.GetAsync($"{ReservationsController.Path}/{reservationId}");
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
             var reservation = await response.Content.ReadFromJsonAsync<ReservationDto>();
@@ -138,7 +139,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
                 "Employee-5",
                 "CAP-555");
 
-            var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
+            var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);
 
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
@@ -160,7 +161,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
             "Employee",
             "ABC123");
 
-        var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
+        var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -175,7 +176,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         try
         {
             var response = await _backend.PostAsJsonAsync(
-                "reservations/cleaning",
+                $"{ReservationsController.Path}/cleaning",
                 new ReserveParkingSpotForCleaningCommand(cleaningDate));
 
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
@@ -205,7 +206,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var command = new ReserveParkingSpotForCleaningCommand(
             _clock.Current().AddDays(-1));
 
-        var response = await _backend.PostAsJsonAsync("reservations/cleaning", command);
+        var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/cleaning", command);
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
@@ -231,7 +232,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     {
         var response = await UpdateLicensePlateAsync(Guid.NewGuid(), "XYZ987");
 
-        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     [Fact]
@@ -277,7 +278,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
             employeeName,
             licensePlate);
 
-        var response = await _backend.PostAsJsonAsync("reservations/vehicle", command);
+        var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);
         if (response.StatusCode != HttpStatusCode.Created)
         {
             var body = await response.Content.ReadAsStringAsync();
@@ -292,7 +293,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
 
     private async Task<List<ReservationDto>> GetAllReservationsAsync()
     {
-        var response = await _backend.GetAsync("reservations");
+        var response = await _backend.GetAsync($"{ReservationsController.Path}");
         if (!response.IsSuccessStatusCode)
         {
             var body = await response.Content.ReadAsStringAsync();
@@ -315,12 +316,12 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
             licensePlate
         };
 
-        return _backend.PutAsJsonAsync("reservations", payload);
+        return _backend.PutAsJsonAsync($"{ReservationsController.Path}", payload);
     }
 
     private Task<HttpResponseMessage> DeleteReservationAsync(Guid reservationId)
     {
-        var request = new HttpRequestMessage(HttpMethod.Delete, "reservations")
+        var request = new HttpRequestMessage(HttpMethod.Delete, $"{ReservationsController.Path}")
         {
             Content = JsonContent.Create(new DeleteReservationCommand(reservationId))
         };

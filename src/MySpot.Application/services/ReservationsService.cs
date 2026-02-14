@@ -59,29 +59,6 @@ public sealed class ReservationsService(
         await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpots);
         await reservationRepository.RemoveAsync(reservationsToRemove);
     }
-
-    public async Task<bool> ChangeReservationLicensePlateAsync(ChangeReservationLicensePlateCommand command)
-    {
-        var weeklyParkingSpot = await GetWeeklyParkingSpotByReservation(command.ReservationId);
-        if (weeklyParkingSpot == null)
-        {
-            return false;
-        }
-        
-        var existingReservation = weeklyParkingSpot.Reservations.
-            OfType<VehicleReservation>().
-            SingleOrDefault(
-                reservation => reservation.Id.Value == command.ReservationId);
-        if (existingReservation == null)
-        {
-            return false;
-        }
-
-        existingReservation.ChangeLicensePlate(command.LicensePlate);
-        await weeklyParkingSpotRepository.UpdateAsync(weeklyParkingSpot);
-
-        return true;
-    }
     
     public async Task<bool> DeleteAsync(DeleteReservationCommand command)
     {
@@ -94,13 +71,5 @@ public sealed class ReservationsService(
         await reservationRepository.RemoveAsync(existingReservation);
         
         return true;
-    }
-    
-    private async Task<WeeklyParkingSpot?> GetWeeklyParkingSpotByReservation(Guid reservationId)
-    {
-        var weeklyParkingSpots = await weeklyParkingSpotRepository.GetAllAsync();
-        
-        return weeklyParkingSpots.SingleOrDefault(spot =>
-            spot.Reservations.Any(reservation => reservation.Id.Value == reservationId));
     }
 }
