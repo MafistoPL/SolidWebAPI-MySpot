@@ -1,7 +1,8 @@
-﻿using MySpot.Core.ValueObjects;
+﻿using MySpot.Application.Abstractions;
+using MySpot.Core.ValueObjects;
 
 namespace MySpot.Application.Commands;
 
 public record ChangeReservationLicensePlateCommand(
     Guid ReservationId,
-    string LicensePlate);
+    string LicensePlate) : ICommand;

@@ -42,7 +42,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var response = await _backend.GetAsync("reservations");
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-        var reservations = await response.Content.ReadFromJsonAsync<List<ReservationDto>>();
+        var reservations = await response.Content.ReadFromJsonAsync<List<WeeklyParkingSpotDto>>();
         Assert.NotNull(reservations);
     }
 
@@ -113,7 +113,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task PostVehicle_ReturnsBadRequest_WhenCapacityExceeded()
     {
-        var reservationDate = new DateTime(2022, 08, 15);
+        var reservationDate = new DateTime(2022, 08, 12);
         await DeleteReservationsForDateAsync(reservationDate);
         var firstReservationId = await CreateVehicleReservationAsync(
             ParkingSpotId1,
@@ -299,8 +299,12 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
             Assert.Fail($"Expected OK but got {response.StatusCode}. Body: {body}");
         }
 
-        var reservations = await response.Content.ReadFromJsonAsync<List<ReservationDto>>();
-        return reservations ?? new List<ReservationDto>();
+        var reservations =
+            (await response.Content.ReadFromJsonAsync<List<WeeklyParkingSpotDto>>() ?? [])
+                .SelectMany(spot => spot.Reservations)
+            .ToList();
+        
+        return reservations;
     }
 
     private Task<HttpResponseMessage> UpdateLicensePlateAsync(Guid reservationId, string licensePlate)

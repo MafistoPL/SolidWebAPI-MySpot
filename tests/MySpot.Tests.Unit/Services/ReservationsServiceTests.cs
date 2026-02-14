@@ -1,4 +1,7 @@
-﻿using MySpot.Application.Commands;
+﻿using MySpot.Application.Abstractions;
+using MySpot.Application.Commands;
+using MySpot.Application.Commands.Handlers;
+using MySpot.Application.Exceptions;
 using MySpot.Application.services;
 using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
@@ -28,11 +31,11 @@ public class ReservationsServiceTests
             );
         
         // Act
-        var reservationId = await _reservationsService.ReserveForVehicleAsync(command);
+        var exception = await Record.ExceptionAsync(
+            () => _reserveParkingSpotForVehicleCommandHandler.HandleAsync(command));
 
         // Assert
-        reservationId.ShouldNotBeNull();
-        reservationId.Value.ShouldBe(command.ReservationId);
+        exception.ShouldBeNull();
     }
 
     [Fact]
@@ -48,10 +51,11 @@ public class ReservationsServiceTests
             "ABC-123");
         
         // Act
-        var reservationId = await _reservationsService.ReserveForVehicleAsync(command);
+        var exception = await Record.ExceptionAsync(
+            () => _reserveParkingSpotForVehicleCommandHandler.HandleAsync(command));
 
         // Assert
-        reservationId.ShouldBeNull();
+        exception.ShouldBeOfType<WeeklyParkingSpotNotFound>();
     }
 
     [Fact]
@@ -68,8 +72,7 @@ public class ReservationsServiceTests
             "John Doe",
             "ABC-123");
 
-        var vehicleReservationId = await _reservationsService.ReserveForVehicleAsync(vehicleCommand);
-        vehicleReservationId.ShouldNotBeNull();
+        await _reserveParkingSpotForVehicleCommandHandler.HandleAsync(vehicleCommand);
 
         // Act
         await _reservationsService.ReserveForCleaningAsync(
@@ -121,6 +124,9 @@ public class ReservationsServiceTests
     
     private readonly IWeeklyParkingSpotRepository _weeklyParkingSpotRepository;
     private readonly IReservationRepository _reservationRepository;
+    
+    private readonly ReserveParkingSpotForVehicleCommandHandler _reserveParkingSpotForVehicleCommandHandler;
+    
     public ReservationsServiceTests()
     {
         _weeklyParkingSpotRepository = new InMemoryWeeklyParkingSpotRepository(_clock);
@@ -139,6 +145,11 @@ public class ReservationsServiceTests
         _reservationsService = new ReservationsService(
             _weeklyParkingSpotRepository,
             _reservationRepository,
+            parkingReservationService,
+            _clock);
+
+        _reserveParkingSpotForVehicleCommandHandler = new ReserveParkingSpotForVehicleCommandHandler(
+            _weeklyParkingSpotRepository,
             parkingReservationService,
             _clock);
     }

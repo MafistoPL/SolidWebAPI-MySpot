@@ -46,40 +46,6 @@ public sealed class ReservationsService(
             });
     }
 
-    public async Task<Guid?> ReserveForVehicleAsync(ReserveParkingSpotForVehicleCommand command)
-    {
-        var weeklyParkingSpots = (await weeklyParkingSpotRepository
-                .GetByWeekAsync(new Week(clock.Current())))
-            .ToList();
-        
-        WeeklyParkingSpot? parkingSpotToReserve = weeklyParkingSpots.SingleOrDefault(
-            weeklyParkingSpot => weeklyParkingSpot.Id.Value == command.ParkingSpotId);
-        
-        if (parkingSpotToReserve == null)
-        {
-            return null;
-        }
-
-        var newReservation = new VehicleReservation(command.ReservationId, 
-            command.ParkingSpotId,
-            command.Capacity,
-            new Date(command.Date),
-            new Date(clock.Current()),
-            command.EmployeeName,
-            command.LicensePlate
-            );
-        
-        // weeklyParkingSpot.AddReservation(newReservation, new Date(clock.Current()));
-        parkingReservationService.ReserveSpotForVehicle(
-            weeklyParkingSpots,
-            JobTitle.Employee,
-            parkingSpotToReserve,
-            newReservation);
-        await weeklyParkingSpotRepository.UpdateAsync(parkingSpotToReserve);
-
-        return newReservation.Id;
-    }
-
     public async Task ReserveForCleaningAsync(ReserveParkingSpotForCleaningCommand command)
     {
         var week = new Week(command.Date);

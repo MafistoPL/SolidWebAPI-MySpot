@@ -1,16 +1,22 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using MySpot.Application.Abstractions;
 using MySpot.Application.Commands;
 using MySpot.Application.DTO;
+using MySpot.Application.Queries;
 using MySpot.Application.services;
 
 namespace MySpot.Api.Controllers;
 
 [ApiController]
 [Route("reservations")]
-public class ReservationsController(IReservationsService reservationsService) : ControllerBase
+public class ReservationsController(IReservationsService reservationsService,
+    ICommandHandler<ReserveParkingSpotForVehicleCommand> reserveParkingSpotForVehicleCommandHandler,
+    IQueryHandler<GetWeeklyParkingSpots, IEnumerable<WeeklyParkingSpotDto>> getWeeklyParkingSpotsQueryHandler
+    ) : ControllerBase
 {
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ReservationDto>>> Get() => Ok(await reservationsService.GetAllWeeklyAsync());
+    public async Task<ActionResult<IEnumerable<ReservationDto>>> Get([FromQuery] GetWeeklyParkingSpots query) 
+        => Ok(await getWeeklyParkingSpotsQueryHandler.HandleAsync(query));
 
     [HttpGet("{id:guid}")]
     public async Task<ActionResult<ReservationDto?>> Get(Guid id)
@@ -28,13 +34,10 @@ public class ReservationsController(IReservationsService reservationsService) : 
     [HttpPost("vehicle")]
     public async Task<ActionResult> Post([FromBody] ReserveParkingSpotForVehicleCommand command)
     {
-        Guid? id = await reservationsService.ReserveForVehicleAsync(command with { ReservationId = Guid.NewGuid() });
-        if (id == null)
-        {
-            return BadRequest();
-        }
+        command = command with { ReservationId = Guid.NewGuid() };
+        await reserveParkingSpotForVehicleCommandHandler.HandleAsync(command);
 
-        return CreatedAtAction(nameof(Get), new { id = id }, null);
+        return CreatedAtAction(nameof(Get), new { id = command.ReservationId }, null);
     }
 
     [HttpPost("cleaning")]

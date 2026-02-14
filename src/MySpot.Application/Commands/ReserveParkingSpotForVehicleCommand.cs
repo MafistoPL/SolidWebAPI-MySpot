@@ -1,4 +1,5 @@
-﻿using MySpot.Core.ValueObjects;
+﻿using MySpot.Application.Abstractions;
+using MySpot.Core.ValueObjects;
 
 namespace MySpot.Application.Commands;
 
@@ -8,4 +9,4 @@ public record ReserveParkingSpotForVehicleCommand(
     ParkingSpotCapacityValue Capacity,
     DateTime Date,
     string EmployeeName,
-    string LicensePlate);
+    string LicensePlate) : ICommand;
