@@ -5,7 +5,7 @@ using MySpot.Core.ValueObjects;
 
 namespace MySpot.Infrastructure.DAL.Repository;
 
-internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
+internal class PostgresWeeklyParkingSpotRepository(MySpotDbContext context)
     : IWeeklyParkingSpotRepository
 {
     public Task<WeeklyParkingSpot?> GetAsync(ParkingSpotId id)
@@ -42,10 +42,11 @@ internal class EfCoreWeeklyParkingSpotRepository(MySpotDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task UpdateAsync(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots)
+    public Task UpdateAsync(IEnumerable<WeeklyParkingSpot> weeklyParkingSpots)
     {
         context.WeeklyParkingSpots.UpdateRange(weeklyParkingSpots);
-        await context.SaveChangesAsync();
+
+        return Task.CompletedTask;
     }
 
     public async Task RemoveAsync(WeeklyParkingSpot weeklyParkingSpot)

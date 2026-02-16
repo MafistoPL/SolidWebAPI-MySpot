@@ -37,9 +37,10 @@ internal class EfCoreReservationRepository(MySpotDbContext context)
         await context.SaveChangesAsync();
     }
 
-    public async Task RemoveAsync(IEnumerable<Reservation> reservations)
+    public Task RemoveAsync(IEnumerable<Reservation> reservations)
     {
         context.Reservations.RemoveRange(reservations);
-        await context.SaveChangesAsync();
+        
+        return Task.CompletedTask;       
     }
 }

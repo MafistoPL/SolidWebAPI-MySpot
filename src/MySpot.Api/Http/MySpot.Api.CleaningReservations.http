@@ -40,6 +40,7 @@ Content-Type: application/json
   "employeeName": "Cleaning Test 1",
   "parkingSpotId": "{{parkingSpotId}}",
   "licensePlate": "CLN1234",
+  "capacity": 4,
   "date": "{{tomorrow}}"
 }
 
@@ -58,6 +59,7 @@ Content-Type: application/json
   "employeeName": "Cleaning Test 2",
   "parkingSpotId": "{{parkingSpotId}}",
   "licensePlate": "CLN5678",
+  "capacity": 4,
   "date": "{{dayAfterTomorrow}}"
 }
 

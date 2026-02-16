@@ -13,7 +13,8 @@ public class ReservationsController(
     ICommandHandler<ChangeReservationLicensePlateCommand> changeReservationLicensePlateCommandHandler,
     ICommandHandler<DeleteReservationCommand> deleteReservationCommandHandler,
     ICommandHandler<ReserveParkingSpotForCleaningCommand> reserveParkingSpotForCleaningCommandHandler,
-    IQueryHandler<GetReservation, ReservationDto?> getReservationQueryHandler
+    IQueryHandler<GetReservation, ReservationDto?> getReservationQueryHandler,
+    IQueryHandler<GetAllReservations, IEnumerable<ReservationDto>> getAllReservationsQueryHandler
     ) : ControllerBase
 {
     public const string Path = "reservations";
@@ -28,6 +29,12 @@ public class ReservationsController(
         }
 
         return Ok(reservation);
+    }
+
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<ReservationDto>>> GetAll()
+    {
+        return Ok(await getAllReservationsQueryHandler.HandleAsync(new GetAllReservations()));
     }
     
     [HttpPost("vehicle")]

@@ -2,7 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySpot.Application.Abstractions;
+using MySpot.Application.Commands;
 using MySpot.Core.Repositories;
+using MySpot.Infrastructure.DAL.Decorators;
 using MySpot.Infrastructure.DAL.Repository;
 
 namespace MySpot.Infrastructure.DAL;
@@ -22,17 +24,14 @@ internal static class Extensions
         
         services.AddDbContext<MySpotDbContext>(
             x => x.UseNpgsql(postgresOptions.ConnectionString));
-        services.AddScoped<IWeeklyParkingSpotRepository, EfCoreWeeklyParkingSpotRepository>();
+        services.AddScoped<IWeeklyParkingSpotRepository, PostgresWeeklyParkingSpotRepository>();
         services.AddScoped<IReservationRepository, EfCoreReservationRepository>();
+        services.AddScoped<IUnitOfWork, PostgresUnitOfWorK>();
         services.AddHostedService<DatabaseInitializer>();
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-        
-        var infrastructureAssembly = typeof(AppOptions).Assembly;
-        services.Scan(s => s.FromAssemblies(infrastructureAssembly)
-            .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
-        );
+
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(UnitOfWorkCommandHandlerDecorator<>));
+        services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingCommandHandlerDecorator<>));
         
         return services;
     }
