@@ -6,6 +6,7 @@ using MySpot.Application.Commands;
 using MySpot.Core.Repositories;
 using MySpot.Infrastructure.DAL.Decorators;
 using MySpot.Infrastructure.DAL.Repository;
+using MySpot.Infrastructure.Logging.Decorators;
 
 namespace MySpot.Infrastructure.DAL;
 
@@ -31,7 +32,6 @@ internal static class Extensions
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
         services.TryDecorate(typeof(ICommandHandler<>), typeof(UnitOfWorkCommandHandlerDecorator<>));
-        services.TryDecorate(typeof(ICommandHandler<>), typeof(LoggingCommandHandlerDecorator<>));
         
         return services;
     }

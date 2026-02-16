@@ -1,10 +1,11 @@
 ﻿using Humanizer;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using MySpot.Core.Exceptions;
 
 namespace MySpot.Infrastructure.Exceptions;
 
-internal sealed class ExceptionMiddleware : IMiddleware
+internal sealed class ExceptionMiddleware(ILogger<ExceptionMiddleware> logger) : IMiddleware
 {
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
@@ -15,6 +16,7 @@ internal sealed class ExceptionMiddleware : IMiddleware
         catch (Exception exception)
         {
             Console.WriteLine(exception.ToString());
+            logger.LogError(exception, exception.Message);
             await HandleExceptionAsync(exception, context);
         }
     }
