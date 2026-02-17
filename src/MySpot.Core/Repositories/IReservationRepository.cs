@@ -11,5 +11,4 @@ public interface IReservationRepository
     Task UpdateAsync(Reservation reservation);
     Task RemoveAsync(Reservation reservation);
     Task RemoveAsync(IEnumerable<Reservation> reservations);
-    
 }

@@ -6,6 +6,7 @@ using MySpot.Core.Abstractions;
 using MySpot.Infrastructure.DAL;
 using MySpot.Infrastructure.Exceptions;
 using MySpot.Infrastructure.Logging;
+using MySpot.Infrastructure.Security;
 using MySpot.Infrastructure.Time;
 
 namespace MySpot.Infrastructure;
@@ -25,7 +26,9 @@ public static class Extensions
             .AddPostgres(configuration)
             .AddSingleton<IClock, Clock>();
         
-        services.AddCustomLogging();
+        services
+            .AddCustomLogging()
+            .AddSecurity();
         
         var infrastructureAssembly = typeof(AppOptions).Assembly;
         services.Scan(s => s.FromAssemblies(infrastructureAssembly)

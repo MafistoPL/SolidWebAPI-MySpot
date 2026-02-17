@@ -1,0 +1,13 @@
+﻿@url = http://localhost:5000
+
+###
+POST {{url}}/users
+Content-Type: application/json
+
+{
+  "email": "user1@myspot.io",
+  "password": "secret",
+  "username": "user1",
+  "fullName": "John Doe",
+  "role": "user"
+}
