@@ -34,4 +34,12 @@ internal static class Extensions
             Type = entity.GetType().Name
         };
     }
+    
+    public static UserDto ToDto(this User entity)
+        => new()
+        {
+            Id = entity.Id,
+            Username = entity.Username,
+            FullName = entity.FullName
+        };
 }

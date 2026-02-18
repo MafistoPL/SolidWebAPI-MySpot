@@ -2,11 +2,9 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySpot.Application.Abstractions;
-using MySpot.Application.Commands;
 using MySpot.Core.Repositories;
 using MySpot.Infrastructure.DAL.Decorators;
 using MySpot.Infrastructure.DAL.Repository;
-using MySpot.Infrastructure.Logging.Decorators;
 
 namespace MySpot.Infrastructure.DAL;
 
@@ -35,15 +33,5 @@ internal static class Extensions
         services.TryDecorate(typeof(ICommandHandler<>), typeof(UnitOfWorkCommandHandlerDecorator<>));
         
         return services;
-    }
-
-    public static T GetOptions<T>(this IConfiguration configuration, string sectionName)
-        where T : class, new()
-    {
-        var options = new T();
-        var section = configuration.GetSection(sectionName);
-        section.Bind(options);
-        
-        return options;
     }
 }

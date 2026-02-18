@@ -2,4 +2,4 @@
 
 namespace MySpot.Application.Exceptions;
 
-public class ReservationNotFoundException(Guid id) : MySpotException($"Reservation with id: {id} not found.");
+public sealed class ReservationNotFoundException(Guid id) : MySpotException($"Reservation with id: {id} not found.");

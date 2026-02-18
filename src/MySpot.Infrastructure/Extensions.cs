@@ -3,6 +3,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using MySpot.Application.Abstractions;
 using MySpot.Core.Abstractions;
+using MySpot.Infrastructure.Auth;
 using MySpot.Infrastructure.DAL;
 using MySpot.Infrastructure.Exceptions;
 using MySpot.Infrastructure.Logging;
@@ -18,23 +19,20 @@ public static class Extensions
         IConfiguration configuration)
     {
         var sectionAppConfiguration = configuration.GetSection("app");
-        services.Configure<AppOptions>(sectionAppConfiguration);
-        
-        services.AddSingleton<ExceptionMiddleware>();
-        
-        services
-            .AddPostgres(configuration)
-            .AddSingleton<IClock, Clock>();
-        
-        services
-            .AddCustomLogging()
-            .AddSecurity();
-        
         var infrastructureAssembly = typeof(AppOptions).Assembly;
-        services.Scan(s => s.FromAssemblies(infrastructureAssembly)
-            .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
-            .AsImplementedInterfaces()
-            .WithScopedLifetime()
+        
+        services
+            .Configure<AppOptions>(sectionAppConfiguration)
+            .AddSingleton<ExceptionMiddleware>()
+            .AddPostgres(configuration)
+            .AddSingleton<IClock, Clock>()
+            .AddCustomLogging()
+            .AddSecurity()
+            .AddAuth(configuration)
+            .Scan(s => s.FromAssemblies(infrastructureAssembly)
+                .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
+                .AsImplementedInterfaces()
+                .WithScopedLifetime()
         );
 
         return services;
@@ -43,8 +41,20 @@ public static class Extensions
     public static WebApplication UseInfrastructure(this WebApplication app)
     {
         app.UseMiddleware<ExceptionMiddleware>();
+        app.UseAuthentication();
+        app.UseAuthorization();
         app.MapControllers();
 
         return app;
+    }
+    
+    public static T GetOptions<T>(this IConfiguration configuration, string sectionName)
+        where T : class, new()
+    {
+        var options = new T();
+        var section = configuration.GetSection(sectionName);
+        section.Bind(options);
+        
+        return options;
     }
 }
