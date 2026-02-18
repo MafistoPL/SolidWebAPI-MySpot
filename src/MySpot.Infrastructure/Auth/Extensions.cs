@@ -23,7 +23,13 @@ internal static class Extensions
         services
             .AddSingleton<IAuthenticator, Authenticator>()
             .AddScoped<ITokenStorage, HttpContextTokenStorage>()
-            .AddAuthorization()
+            .AddAuthorization(authorization =>
+            {
+                authorization.AddPolicy("is-admin", policy =>
+                {
+                    policy.RequireRole("admin");
+                });
+            })
             .AddAuthentication(configureOptions: authenticationOptions =>
             {
                 authenticationOptions.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;

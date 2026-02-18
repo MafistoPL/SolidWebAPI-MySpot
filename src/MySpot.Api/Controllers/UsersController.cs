@@ -11,6 +11,7 @@ using MySpot.Infrastructure.Security;
 namespace MySpot.Api.Controllers;
 
 [ApiController]
+[Authorize]
 [Route( "[controller]")]
 public class UsersController(
     ICommandHandler<SignUpCommand> sighUpHandler,
@@ -21,6 +22,7 @@ public class UsersController(
     ) : ControllerBase
 {
     [HttpGet("{userId:guid}")]
+    [Authorize(Policy = "is-admin")]
     public async Task<ActionResult<UserDto>> Get([FromRoute] Guid userId)
     {
         var user = await getUserHandler.HandleAsync(new GetUser { UserId = userId });
@@ -43,10 +45,12 @@ public class UsersController(
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<ActionResult<IEnumerable<UserDto>>> Get([FromQuery] GetUsers query)
         => Ok(await getUsersHandler.HandleAsync(query));
 
     [HttpPost]
+    [AllowAnonymous]
     public async Task<ActionResult> Post(SignUpCommand command)
     {
         command = command with { Id = Guid.NewGuid() };
@@ -56,6 +60,7 @@ public class UsersController(
     }
     
     [HttpPost("sign-in")]
+    [AllowAnonymous]
     public async Task<ActionResult<JwtDto>> Post(SignInCommand command)
     {
         await signInHandler.HandleAsync(command);
