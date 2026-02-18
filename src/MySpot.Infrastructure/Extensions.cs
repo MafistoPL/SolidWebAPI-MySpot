@@ -20,6 +20,7 @@ public static class Extensions
     {
         var sectionAppConfiguration = configuration.GetSection("app");
         var infrastructureAssembly = typeof(AppOptions).Assembly;
+        var appOptions = configuration.GetOptions<AppOptions>("app");
         
         services
             .Configure<AppOptions>(sectionAppConfiguration)
@@ -29,6 +30,12 @@ public static class Extensions
             .AddCustomLogging()
             .AddSecurity()
             .AddAuth(configuration)
+            .AddSwaggerGen(swagger =>
+            {
+                swagger.EnableAnnotations();
+                swagger.SwaggerDoc(appOptions.Version, new() { Title = appOptions.Name });
+            })
+            .AddEndpointsApiExplorer()
             .Scan(s => s.FromAssemblies(infrastructureAssembly)
                 .AddClasses(c => c.AssignableTo(typeof(IQueryHandler<,>)), publicOnly: false)
                 .AsImplementedInterfaces()
@@ -41,6 +48,8 @@ public static class Extensions
     public static WebApplication UseInfrastructure(this WebApplication app)
     {
         app.UseMiddleware<ExceptionMiddleware>();
+        app.UseSwagger();
+        app.UseSwaggerUI();
         app.UseAuthentication();
         app.UseAuthorization();
         app.MapControllers();
