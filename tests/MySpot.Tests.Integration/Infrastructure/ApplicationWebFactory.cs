@@ -17,6 +17,12 @@ namespace MySpot.Tests.Integration.Infrastructure;
 
 public class ApplicationWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
 {
+    public static readonly Guid UserId1 = Guid.Parse("10000000-0000-0000-0000-000000000001");
+    public static readonly Guid UserId2 = Guid.Parse("10000000-0000-0000-0000-000000000002");
+    public static readonly Guid UserId3 = Guid.Parse("10000000-0000-0000-0000-000000000003");
+    public static readonly Guid UserId4 = Guid.Parse("10000000-0000-0000-0000-000000000004");
+    public static readonly Guid UserId5 = Guid.Parse("10000000-0000-0000-0000-000000000005");
+
     static ApplicationWebFactory()
     {
         AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
@@ -218,18 +224,35 @@ public class ApplicationWebFactory : WebApplicationFactory<Program>, IAsyncLifet
         await using var context = new MySpotDbContext(options);
         await context.Database.MigrateAsync();
 
-        if (context.WeeklyParkingSpots.Any())
+        var seedParkingSpots = !context.WeeklyParkingSpots.Any();
+        var seedUsers = !context.Users.Any();
+
+        if (!seedParkingSpots && !seedUsers)
         {
             return;
         }
 
-        var week = new Week(new DateTimeOffset(Clock.Current()));
+        if (seedParkingSpots)
+        {
+            var week = new Week(new DateTimeOffset(Clock.Current()));
+            context.WeeklyParkingSpots.AddRange(
+                WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000001"), week, "P1"),
+                WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000002"), week, "P2"),
+                WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000003"), week, "P3")
+            );
+        }
 
-        context.WeeklyParkingSpots.AddRange(
-            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000001"), week, "P1"),
-            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000002"), week, "P2"),
-            WeeklyParkingSpot.Create(Guid.Parse("00000000-0000-0000-0000-000000000003"), week, "P3")
-        );
+        if (seedUsers)
+        {
+            var createdAt = Clock.Current();
+            context.Users.AddRange(
+                new User(UserId1, "employee1@myspot.io", "employee1", "secret123", "Employee 1", "user", createdAt),
+                new User(UserId2, "employee2@myspot.io", "employee2", "secret123", "Employee 2", "user", createdAt),
+                new User(UserId3, "employee3@myspot.io", "employee3", "secret123", "Employee 3", "user", createdAt),
+                new User(UserId4, "employee4@myspot.io", "employee4", "secret123", "Employee 4", "user", createdAt),
+                new User(UserId5, "employee5@myspot.io", "employee5", "secret123", "Employee 5", "user", createdAt)
+            );
+        }
 
         await context.SaveChangesAsync();
     }

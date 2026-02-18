@@ -2,6 +2,7 @@
 using MySpot.Application.Commands;
 using MySpot.Application.Commands.Handlers;
 using MySpot.Application.Exceptions;
+using MySpot.Core.Abstractions;
 using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
 using MySpot.Core.Policies;
@@ -23,9 +24,9 @@ public class ReservationsServiceTests
         var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
+            _userId,
             ParkingSpotCapacityValue.Full,
             _clock.Current().Date,
-            "John Doe",
             "ABC-123"
             );
         
@@ -44,9 +45,9 @@ public class ReservationsServiceTests
         var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
             Guid.NewGuid(),
+            _userId,
             ParkingSpotCapacityValue.Full,
             _clock.Current().Date,
-            "John Doe",
             "ABC-123");
         
         // Act
@@ -66,9 +67,9 @@ public class ReservationsServiceTests
         var vehicleCommand = new ReserveParkingSpotForVehicleCommand(
             parkingSpot.Id,
             Guid.NewGuid(),
+            _userId,
             ParkingSpotCapacityValue.Full,
             cleaningDate,
-            "John Doe",
             "ABC-123");
 
         await _reserveParkingSpotForVehicleCommandHandler.HandleAsync(vehicleCommand);
@@ -122,6 +123,8 @@ public class ReservationsServiceTests
     
     private readonly IWeeklyParkingSpotRepository _weeklyParkingSpotRepository;
     private readonly IReservationRepository _reservationRepository;
+    private readonly IUserRepository _userRepository;
+    private readonly Guid _userId = Guid.Parse("10000000-0000-0000-0000-000000000001");
     
     private readonly ReserveParkingSpotForVehicleCommandHandler _reserveParkingSpotForVehicleCommandHandler;
     private readonly ChangeReservationLicensePlateCommandHandler _changeReservationLicensePlateCommandHandler;
@@ -131,6 +134,7 @@ public class ReservationsServiceTests
     {
         _weeklyParkingSpotRepository = new InMemoryWeeklyParkingSpotRepository(_clock);
         _reservationRepository = new InMemoryReservationRepository();
+        _userRepository = new InMemoryUserRepository();
 
         IEnumerable<IReservationPolicy> reservationPolicies =
         [
@@ -142,10 +146,22 @@ public class ReservationsServiceTests
         ParkingReservationService parkingReservationService 
             = new ParkingReservationService(reservationPolicies, _clock);
 
+        _userRepository.AddAsync(new User(
+                _userId,
+                "john.doe@myspot.io",
+                "john.doe",
+                "secret123",
+                "John Doe",
+                Role.User(),
+                _clock.Current()))
+            .GetAwaiter()
+            .GetResult();
+
         _reserveParkingSpotForVehicleCommandHandler = new ReserveParkingSpotForVehicleCommandHandler(
+            _clock,
             _weeklyParkingSpotRepository,
             parkingReservationService,
-            _clock);
+            _userRepository);
         _changeReservationLicensePlateCommandHandler = new ChangeReservationLicensePlateCommandHandler(
             _weeklyParkingSpotRepository);
         _reserveParkingSpotForCleaningCommandHandler = new ReserveParkingSpotForCleaningCommandHandler(

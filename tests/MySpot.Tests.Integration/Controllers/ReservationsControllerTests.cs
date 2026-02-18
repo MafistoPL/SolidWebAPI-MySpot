@@ -13,6 +13,11 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     private static readonly Guid ParkingSpotId1 = Guid.Parse("00000000-0000-0000-0000-000000000001");
     private static readonly Guid ParkingSpotId2 = Guid.Parse("00000000-0000-0000-0000-000000000002");
     private static readonly Guid ParkingSpotId3 = Guid.Parse("00000000-0000-0000-0000-000000000003");
+    private static readonly Guid UserId1 = ApplicationWebFactory.UserId1;
+    private static readonly Guid UserId2 = ApplicationWebFactory.UserId2;
+    private static readonly Guid UserId3 = ApplicationWebFactory.UserId3;
+    private static readonly Guid UserId4 = ApplicationWebFactory.UserId4;
+    private static readonly Guid UserId5 = ApplicationWebFactory.UserId5;
 
     private readonly ApplicationWebFactory _factory;
     private HttpClient _backend = null!;
@@ -48,7 +53,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task PostVehicle_ValidRequest_CreatesReservationAndGetByIdReturnsOk()
     {
-        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, UserId1, _clock.Current());
         try
         {
             var response = await _backend.GetAsync($"{ReservationsController.Path}/{reservationId}");
@@ -71,15 +76,15 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         await DeleteReservationsForDateAsync(reservationDate);
         var firstReservationId = await CreateVehicleReservationAsync(
             ParkingSpotId1,
+            UserId1,
             reservationDate,
             ParkingSpotCapacityValue.Half,
-            "Employee-1",
             "CAP-111");
         var secondReservationId = await CreateVehicleReservationAsync(
             ParkingSpotId1,
+            UserId2,
             reservationDate,
             ParkingSpotCapacityValue.Half,
-            "Employee-2",
             "CAP-222");
 
         try
@@ -108,15 +113,15 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         await DeleteReservationsForDateAsync(reservationDate);
         var firstReservationId = await CreateVehicleReservationAsync(
             ParkingSpotId1,
+            UserId3,
             reservationDate,
             ParkingSpotCapacityValue.Half,
-            "Employee-3",
             "CAP-333");
         var secondReservationId = await CreateVehicleReservationAsync(
             ParkingSpotId1,
+            UserId4,
             reservationDate,
             ParkingSpotCapacityValue.Half,
-            "Employee-4",
             "CAP-444");
 
         try
@@ -124,9 +129,9 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
             var command = new ReserveParkingSpotForVehicleCommand(
                 ParkingSpotId1,
                 Guid.Empty,
+                UserId5,
                 ParkingSpotCapacityValue.OneQuarter,
                 reservationDate,
-                "Employee-5",
                 "CAP-555");
 
             var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);
@@ -146,9 +151,9 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         var command = new ReserveParkingSpotForVehicleCommand(
             Guid.NewGuid(),
             Guid.Empty,
+            UserId1,
             ParkingSpotCapacityValue.Full,
             _clock.Current(),
-            "Employee",
             "ABC123");
 
         var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);
@@ -161,7 +166,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     {
         var cleaningDate = new DateTime(2022, 08, 13);
         await DeleteReservationsForDateAsync(cleaningDate);
-        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, cleaningDate);
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId1, UserId1, cleaningDate);
 
         try
         {
@@ -204,7 +209,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task Put_ExistingReservation_ReturnsOk()
     {
-        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId2, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId2, UserId1, _clock.Current());
         try
         {
             var response = await UpdateLicensePlateAsync(reservationId, "XYZ987");
@@ -228,7 +233,7 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
     [Fact]
     public async Task Delete_ExistingReservation_ReturnsNoContent()
     {
-        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId3, _clock.Current());
+        var reservationId = await CreateVehicleReservationAsync(ParkingSpotId3, UserId1, _clock.Current());
 
         var response = await DeleteReservationAsync(reservationId);
 
@@ -243,29 +248,29 @@ public class ReservationsControllerTests : IClassFixture<ApplicationWebFactory>,
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    private async Task<Guid> CreateVehicleReservationAsync(Guid parkingSpotId, DateTime date)
+    private async Task<Guid> CreateVehicleReservationAsync(Guid parkingSpotId, Guid userId, DateTime date)
     {
         return await CreateVehicleReservationAsync(
             parkingSpotId,
+            userId,
             date,
             ParkingSpotCapacityValue.Full,
-            "Employee",
             "ABC123");
     }
 
     private async Task<Guid> CreateVehicleReservationAsync(
         Guid parkingSpotId,
+        Guid userId,
         DateTime date,
         ParkingSpotCapacityValue capacity,
-        string employeeName,
         string licensePlate)
     {
         var command = new ReserveParkingSpotForVehicleCommand(
             parkingSpotId,
             Guid.Empty,
+            userId,
             capacity,
             date,
-            employeeName,
             licensePlate);
 
         var response = await _backend.PostAsJsonAsync($"{ReservationsController.Path}/vehicle", command);

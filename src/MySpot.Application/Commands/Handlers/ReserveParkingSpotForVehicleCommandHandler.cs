@@ -3,15 +3,16 @@ using MySpot.Application.Exceptions;
 using MySpot.Core.Abstractions;
 using MySpot.Core.DomainServices;
 using MySpot.Core.Entities;
+using MySpot.Core.Exceptions;
 using MySpot.Core.Repositories;
 using MySpot.Core.ValueObjects;
 
 namespace MySpot.Application.Commands.Handlers;
 
-public sealed class ReserveParkingSpotForVehicleCommandHandler(
+public sealed class ReserveParkingSpotForVehicleCommandHandler(IClock clock,
     IWeeklyParkingSpotRepository weeklyParkingSpotRepository,
     IParkingReservationService parkingReservationService,
-    IClock clock) : ICommandHandler<ReserveParkingSpotForVehicleCommand>
+    IUserRepository userRepository) : ICommandHandler<ReserveParkingSpotForVehicleCommand>
 {
     public async Task HandleAsync(ReserveParkingSpotForVehicleCommand command)
     {
@@ -26,13 +27,19 @@ public sealed class ReserveParkingSpotForVehicleCommandHandler(
         {
             throw new WeeklyParkingSpotNotFoundException((ParkingSpotId)command.ParkingSpotId);
         }
-
+        
+        var user = await userRepository.GetByIdAsync(command.UserId);
+        if (user is null)
+        {
+            throw new UserNotFoundException(command.UserId);
+        }
+        
         var newReservation = new VehicleReservation(command.ReservationId, 
             command.ParkingSpotId,
             command.Capacity,
             new Date(command.Date),
             new Date(clock.Current()),
-            command.EmployeeName,
+            new EmployeeName(user.FullName),
             command.LicensePlate
         );
         
