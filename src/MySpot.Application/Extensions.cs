@@ -9,7 +9,7 @@ public static class Extensions
     {
         var applicationAssembly = typeof(IQueryHandler<,>).Assembly;
         services.Scan(s => s.FromAssemblies(applicationAssembly)
-            .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<>)))
+            .AddClasses(c => c.AssignableTo(typeof(ICommandHandler<>)), publicOnly: false)
             .AsImplementedInterfaces()
             .WithScopedLifetime()
         );
